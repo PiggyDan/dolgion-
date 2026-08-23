@@ -406,7 +406,7 @@ export default function Home() {
     <main>
       <header className="nav-wrap">
         <nav className="nav shell">
-          <a className="brand" href="#top">DOLGION<span>.</span></a>
+          <a className="brand" href="#top">DOLGION<span></span></a>
           <div className="nav-links">
             {nav.map(([label, href]) => <a key={href} href={href}>{label}</a>)}
           </div>
