@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Dolgion favicon">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#bg)"/>
+  <path d="M19 14h12.5C40 14 47 21 47 32s-7 18-15.5 18H19V14zm8 8v20h4.5c6 0 10-4 10-10s-4-10-10-10H27z" fill="url(#accent)"/>
+  <path d="M27 18v28h-8V18h8z" fill="#f8fafc" opacity="0.9"/>
+</svg>

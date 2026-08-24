@@ -144,19 +144,6 @@ export const profile = {
       "Full-Stack Architecture",
       "DevOps Automation",
     ],
-    "Languages": [
-      "English",
-      "Mongolian",
-      "Chinese",
-      "Korean",
-      "Russian",
-      "Japanese",
-      "German",
-      "Kazakh",
-      "Turkish",
-      "Uzbek",
-      "Cyrillic / Central Asian language familiarity",
-    ],
   },
 
   education: {

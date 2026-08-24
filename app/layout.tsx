@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "O. Dolgion",
   description:
     "System Engineer working across infrastructure, networking, virtualization, ERP integration and full-stack development.",
+  icons: {
+    icon: "/favicon.svg",
+  },
   openGraph: {
     title: "Dolgion — System Engineer",
     description:
