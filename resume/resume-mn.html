@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8" />
+<title>Олдох Долгион — Анкет</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet" />
+<style>
+  @page { size: A4; margin: 0; }
+  :root {
+    --ink: #0f172a;
+    --text: #334155;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --accent: #2563eb;
+    --accent-2: #0891b2;
+    --tint: #f4f7fd;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #fff; }
+  body {
+    font-family: Inter, system-ui, sans-serif; color: var(--text);
+    font-size: 9.1pt; line-height: 1.45;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .page { width: 210mm; height: 297mm; overflow: hidden; padding: 12mm 13mm 12mm; position: relative; }
+  .page + .page { break-before: page; }
+  .page::before {
+    content: ""; position: absolute; left: 0; top: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--accent-2), var(--accent) 55%, #7c3aed);
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* Header */
+  header { display: flex; align-items: center; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .photo { width: 74px; height: 74px; border-radius: 50%; object-fit: cover; flex: none; box-shadow: 0 0 0 3px #fff, 0 0 0 4.5px #c7d4f3; }
+  .who { flex: 1; min-width: 0; }
+  h1 { font-family: Manrope, Inter, sans-serif; font-weight: 800; font-size: 25pt; letter-spacing: -0.03em; line-height: 1; color: var(--ink); }
+  .role { margin-top: 5px; font-weight: 600; font-size: 10.5pt; color: var(--accent); }
+  .contact { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; font-size: 8.4pt; color: var(--muted); }
+  .contact span { display: inline-flex; align-items: center; gap: 5px; }
+  .contact svg { width: 10px; height: 10px; stroke: var(--accent); flex: none; }
+
+  /* Summary + highlights */
+  .summary { margin-top: 11px; font-size: 9.4pt; color: var(--ink); line-height: 1.5; }
+  .highlights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 11px; }
+  .hl { padding: 8px 10px; border-radius: 8px; background: var(--tint); border: 1px solid #e3e9f6; }
+  .hl b { display: block; font-family: Manrope, sans-serif; font-size: 12.5pt; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; line-height: 1.15; }
+  .hl span { font-size: 7.8pt; color: var(--muted); }
+
+  /* Layout */
+  .cols { display: grid; grid-template-columns: 1fr 56mm; gap: 8mm; margin-top: 12px; }
+  h2 {
+    display: flex; align-items: center; gap: 8px; margin: 0 0 7px;
+    font-size: 8pt; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--accent);
+  }
+  h2::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  section + section { margin-top: 11px; }
+
+  .job { break-inside: avoid; }
+  .job + .job { margin-top: 9px; }
+  .job-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .job h3 { font-size: 10pt; font-weight: 700; color: var(--ink); }
+  .date { font-size: 8pt; font-weight: 600; color: var(--muted); white-space: nowrap; }
+  .org { font-size: 8.8pt; font-weight: 500; color: var(--accent-2); margin-top: 1px; }
+  ul { list-style: none; margin-top: 4px; }
+  li { position: relative; padding-left: 11px; margin-top: 2.5px; }
+  li::before { content: ""; position: absolute; left: 0; top: .6em; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+  li strong { color: var(--ink); font-weight: 600; }
+
+  .project { break-inside: avoid; }
+  .project + .project { margin-top: 9px; }
+  .project h3 { font-size: 10pt; font-weight: 700; color: var(--ink); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .project h3 a { font-size: 8.2pt; font-weight: 600; color: var(--accent); }
+  .plinks { margin-top: 1px; font-size: 8.4pt; font-weight: 600; color: var(--accent); }
+  .project .stack { margin-top: 3px; font-size: 8pt; color: var(--muted); }
+
+  /* Sidebar */
+  aside section + section { margin-top: 12px; }
+  .skill-group + .skill-group { margin-top: 8px; }
+  .skill-group h4 { font-size: 8.4pt; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 3.5px; }
+  .tags span { font-size: 7.7pt; padding: 2px 6.5px; border-radius: 999px; background: var(--tint); border: 1px solid #e0e7f5; color: #334155; }
+  .side-item + .side-item { margin-top: 7px; }
+  .side-item b { display: block; font-size: 8.8pt; color: var(--ink); font-weight: 600; }
+  .side-item span { font-size: 8.2pt; color: var(--muted); }
+  .site { display: block; font-size: 8.4pt; }
+  .site + .site { margin-top: 5px; }
+  .site b { color: var(--ink); font-weight: 600; }
+  .site span { display: block; color: var(--muted); font-size: 7.9pt; }
+
+  .foot { position: absolute; left: 13mm; right: 13mm; bottom: 7mm; display: flex; justify-content: space-between; font-size: 7.4pt; color: #94a3b8; }
+</style>
+</head>
+<body>
+
+<!-- ============================ PAGE 1 ============================ -->
+<div class="page">
+  <header>
+    <img class="photo" src="photo.jpg" alt="Олдох Долгион" />
+    <div class="who">
+      <h1>Олдох Долгион</h1>
+      <p class="role">Систем инженер · DevOps · ERP холболт · Бүтээгдэхүүн хөгжүүлэгч</p>
+      <div class="contact">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Улаанбаатар, Монгол · Зайнаас ажиллахад нээлттэй</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg><a href="mailto:odolgion222@gmail.com">odolgion222@gmail.com</a></span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2Z"/></svg>+976 8909 0126</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg><a href="https://daniel70.netlify.app">daniel70.netlify.app</a></span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.1-1.3-.3-2.5-1-3.5.3-1.2.3-2.4 0-3.5 0 0-1 0-3 1.5a10.6 10.6 0 0 0-6 0C7 2 6 2 6 2c-.3 1.1-.3 2.3 0 3.5A5.4 5.4 0 0 0 5 9c0 3.5 3 5.5 6 5.5-.4.5-.7 1-.8 1.6-.2.6-.3 1.2-.2 1.9v4"/><path d="M9 18c-4.5 2-5-2-7-2"/></svg><a href="https://github.com/PiggyDan">github.com/PiggyDan</a></span>
+      </div>
+    </div>
+  </header>
+
+  <p class="summary">
+    <strong>~11 компанийн</strong> production дэд бүтцийг тасралтгүй ажиллуулж, тэдний ашигладаг программыг бүтээдэг Систем инженер.
+    Dell PowerEdge сервер, VMware, Check Point сүлжээ, CCTV/NVR дээр бодит туршлагатай; группийн ERP-г
+    <strong>Odoo 13-аас Odoo 19</strong> руу шилжүүлэх ажлыг удирдсан; production-д ажиллаж буй олон компанийн IT тусламжийн SaaS
+    <strong>IT Core</strong>-ыг (itcore.dev) үүсгэн байгуулж, хөгжүүлсэн. Асуудлыг хэрэглэгчийн дэлгэцээс эхлээд программ, өгөгдлийн сан, сүлжээ, firewall хүртэл оношилдог.
+  </p>
+
+  <div class="highlights">
+    <div class="hl"><b>~11 компани</b><span>Серверээс компьютер хүртэл IT-г бүрэн хариуцдаг</span></div>
+    <div class="hl"><b>Odoo 13 → 19</b><span>375 модуль шинжилсэн · 15 модуль шилжүүлсэн</span></div>
+    <div class="hl"><b>IT Core SaaS</b><span>itcore.dev дээр ажиллаж байна · 4 долоо хоногт 90+ шинэчлэл</span></div>
+  </div>
+
+  <div class="cols">
+    <main>
+      <section>
+        <h2>Ажлын туршлага</h2>
+
+        <div class="job">
+          <div class="job-top"><h3>Систем инженер</h3><span class="date">2026 — Одоог хүртэл</span></div>
+          <p class="org">Говьхангайн Хөдөлмөр ХХК · ~11 охин компанитай групп</p>
+          <ul>
+            <li>~11 компанийн IT үйл ажиллагааг хариуцдаг: дэд бүтэц, сүлжээ, аюулгүй байдал, ERP, виртуалчлал, хэрэглэгчийн систем.</li>
+            <li><strong>Dell PowerEdge R740 / R750</strong> серверүүдийг хэвийн ажиллуулна — SSD/HDD солих, дахин суулгах, үйлдлийн систем суулгах, VMware ESXi host ажиллуулах, тасралтгүй байдлыг хянах.</li>
+            <li>Check Point firewall, Remote Access VPN, NAT, routing, Wi-Fi, принтер, IP утас болон <strong>CCTV/NVR</strong> камерын системийг удирддаг.</li>
+            <li><strong>ERP 19 шилжүүлэлтийг</strong> удирдсан: 375 модулийг (~225 мянган мөр код бүхий хамаарлын гинж) шинжилж, 15 өөрийн модулийг Odoo 19 Community руу шилжүүлж, хамгаалалттай Ubuntu 24.04 сервер (nginx, UFW, TLS) нэвтрүүлсэн.</li>
+            <li><strong>gkllc.mn</strong> вэб сайтыг хийсэн — ажлын зар Odoo-оос шууд нийтлэгдэж, CV нь тусгай jobs API-аар HR руу ордог.</li>
+            <li>Компьютер форматлах, дахин угсрахаас эхлээд сервер сэргээх хүртэл бүх түвшний дэмжлэг үзүүлж, программ, өгөгдлийн сан, OS, сүлжээ, firewall давхаргын асуудлыг эцэс хүртэл шийддэг.</li>
+          </ul>
+        </div>
+
+        <div class="job">
+          <div class="job-top"><h3>IT мэргэжилтэн</h3><span class="date">2024 — 2026</span></div>
+          <p class="org">KFC / Таван Богд Фүүдс ХХК</p>
+          <ul>
+            <li>Олон салбартай рестораны сүлжээний POS, киоск, оффисын системийг тасралтгүй ажиллуулсан.</li>
+            <li>Үйлчилгээ явагдаж байх үед компьютер, программ, техник хангамж, сүлжээний асуудлыг шуурхай шийдвэрлэсэн.</li>
+          </ul>
+        </div>
+
+        <div class="job">
+          <div class="job-top"><h3>IT үйл ажиллагаа</h3><span class="date">2024</span></div>
+          <p class="org">Ayenix LTD</p>
+          <ul>
+            <li>Өдөр тутмын технологийн үйл ажиллагаа, техникийн асуудлыг шийдвэрлэхэд дэмжлэг үзүүлсэн.</li>
+          </ul>
+        </div>
+
+        <div class="job">
+          <div class="job-top"><h3>IT дэмжлэг</h3><span class="date">2022 — 2024</span></div>
+          <p class="org">Баян Айраг Эксплорэйшн ХХК</p>
+          <ul>
+            <li>Алслагдсан уурхайн орчинд компьютер, сүлжээ, оффисын системд газар дээр нь IT дэмжлэг үзүүлсэн.</li>
+            <li>Хэрэглэгч болон дэд бүтцийг дэмжингээ production орчинд асуудал шийдвэрлэх бодит туршлага хуримтлуулсан.</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <aside>
+      <section>
+        <h2>Ур чадвар</h2>
+        <div class="skill-group">
+          <h4>Дэд бүтэц</h4>
+          <div class="tags"><span>Dell PowerEdge R740/R750</span><span>VMware ESXi</span><span>Windows Server</span><span>Ubuntu / Linux</span><span>SSD / HDD</span><span>CCTV / NVR</span></div>
+        </div>
+        <div class="skill-group">
+          <h4>Сүлжээ ба аюулгүй байдал</h4>
+          <div class="tags"><span>Check Point</span><span>VPN</span><span>NAT</span><span>Routing</span><span>TCP/IP · DNS · DHCP</span><span>Wi-Fi</span><span>nginx · UFW · TLS</span><span>Nmap</span><span>Wireshark</span></div>
+        </div>
+        <div class="skill-group">
+          <h4>ERP ба Backend</h4>
+          <div class="tags"><span>Odoo 13 → 19</span><span>Python</span><span>PostgreSQL</span><span>REST APIs</span><span>Node.js</span><span>JSON</span></div>
+        </div>
+        <div class="skill-group">
+          <h4>Хөгжүүлэлт ба DevOps</h4>
+          <div class="tags"><span>React</span><span>Next.js</span><span>TypeScript</span><span>JavaScript</span><span>Electron</span><span>Cloudflare Workers</span><span>Docker</span><span>Git · GitLab</span><span>PowerShell</span><span>Bash</span></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Боловсрол</h2>
+        <div class="side-item">
+          <b>Компьютерын ухаан</b>
+          <span>Монголын Олон Улсын Их Сургууль<br />Их сургууль — 4 жил</span>
+        </div>
+      </section>
+
+    </aside>
+  </div>
+  <div class="foot"><span>Олдох Долгион — Анкет</span><span>1 / 2</span></div>
+</div>
+
+<!-- ============================ PAGE 2 ============================ -->
+<div class="page">
+  <div class="cols" style="margin-top:0">
+    <main>
+      <section>
+        <h2>Бүтээгдэхүүн ба төслүүд</h2>
+
+        <div class="project">
+          <h3>IT Core — IT тусламжийн төв ба төхөөрөмжийн бүртгэлийн SaaS</h3>
+          <p class="plinks"><a href="https://itcore.dev">itcore.dev</a> · <a href="https://sup.itcore.dev">sup.itcore.dev</a> · Үүсгэн байгуулагч, хөгжүүлэгч · 2026</p>
+          <ul>
+            <li><strong>Олон компанид зориулсан тусламжийн платформыг</strong> санаачилж, зохион бүтээж, хөгжүүлсэн: хавсралттай тикет, чат ба групп чат, уншсан тэмдэгтэй зарлал, мэдлэгийн сан, IT ажилтны тайлан, USD, MNT, CNY-ээр автомат нэхэмжлэл.</li>
+            <li>Интернэтгүй үед ажиллах «IT руу залгах» товчтой, <strong>өөрөө шинэчлэгддэг Windows десктоп апп</strong> (Electron) болон <strong>ITCore Sentinel</strong> агент гаргасан — токеноор төхөөрөмж бүртгэж, төлөвийн мэдээлэл илгээнэ, алсаас тушаал хэзээ ч өгөхгүй.</li>
+            <li>Компани тус бүрийн тусгаарлалт, 4 эрх, scrypt нууц үг, HttpOnly сешн, CSRF шалгалт, нэвтрэх оролдлогын хязгаараар хамгаалж, integration тестээр баталгаажуулсан.</li>
+            <li>Эхний 4 долоо хоногт 90+ шинэчлэл гаргасан; монгол, англи, хятад хэлтэй; сарын багц $35-аас эхэлнэ.</li>
+          </ul>
+          <p class="stack">React · Vite · Cloudflare Workers · Neon PostgreSQL · R2 · Electron · Node.js</p>
+        </div>
+
+        <div class="project">
+          <h3>ERP 19 — Odoo 13 → Odoo 19 шилжүүлэлт</h3>
+          <ul>
+            <li>375 модулийг шинжилж, бодитоор ашиглагдаж буй 46 гуравдагч модулийг ялгаж, Enterprise код, hr_contract нэгтгэл, хасагдсан хуучин JS API-г саад болох асуудлаар тодорхойлсон.</li>
+            <li>HR, цагийн хуваарь, цалин, агуулах, тээвэр, санхүү, засварын модулиудыг шилжүүлж, брэндийн нэвтрэх/нүүр дэлгэц болон олон нийтийн вэбд зориулсан jobs API нэмсэн.</li>
+            <li>Ubuntu 24.04 дээр nginx reverse proxy, UFW firewall, Let's Encrypt TLS болон автомат хамгаалалтын скрипттэйгээр нэвтрүүлсэн.</li>
+          </ul>
+          <p class="stack">Odoo 19 · Python · PostgreSQL · OWL · Ubuntu 24.04 · nginx · GitLab</p>
+        </div>
+
+        <div class="project">
+          <h3>Жингийн системээс ERP руу холболт</h3>
+          <ul>
+            <li>Жингийн мэдээллийг Excel-ээр гараар засахгүйгээр ERP руу шууд оруулах ажлын урсгал; цаашид API-д суурилсан автоматжуулалт зорилттой.</li>
+          </ul>
+          <p class="stack">Odoo · REST API · Validation</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Вэб сайтууд</h2>
+        <ul>
+          <li><strong>gkllc.mn</strong> — ажлын зар нь ERP-ээс ирдэг, CV нь Odoo HR руу ордог байгууллагын сайт. <em>React, Vite, Odoo API</em></li>
+          <li><strong>Paul's Home Repair</strong> — цаг захиалгын календарь, чат туслах, админ самбартай хоёр хэлтэй үйлчилгээний сайт. <em>Next.js, Upstash Redis, Vercel</em></li>
+          <li><strong>JK Mechanic Shop — Garage 84</strong> — гар утасны апптай засварын газрын вэб сайт. <em>React, Expo</em></li>
+          <li><strong>Аяллын аюулгүй байдлын маягт</strong> — компанийн SMTP-ээр IT, захиргаа руу илгээгддэг гарын үсэгтэй дотоод маягт. <em>React, serverless</em></li>
+        </ul>
+      </section>
+    </main>
+
+    <aside>
+      <section>
+        <h2>Миний ажлын арга барил</h2>
+        <div class="side-item"><b>Бүх давхаргыг оношлох</b><span>Хэрэглэгчийн дэлгэцээс firewall хүртэл — «миний ажил биш» гэж байхгүй.</span></div>
+        <div class="side-item"><b>Эцэс хүртэл хариуцах</b><span>Оношилж, засаж, баримтжуулж, дахин давтагдахаас сэргийлнэ.</span></div>
+        <div class="side-item"><b>Уйтгартай ажлыг автоматжуулах</b><span>Excel болон гар ажиллагааг хүмүүсийн бодитоор ашигладаг хэрэгслээр солино.</span></div>
+      </section>
+
+      <section>
+        <h2>Холбоосууд</h2>
+        <a class="site" href="https://itcore.dev"><b>itcore.dev</b><span>IT Core бүтээгдэхүүний сайт</span></a>
+        <a class="site" href="https://sup.itcore.dev"><b>sup.itcore.dev</b><span>IT Core тусламжийн төв апп</span></a>
+        <a class="site" href="https://gkllc.mn"><b>gkllc.mn</b><span>ERP-тэй холбогдсон байгууллагын сайт</span></a>
+        <a class="site" href="https://daniel70.netlify.app"><b>daniel70.netlify.app</b><span>Портфолио</span></a>
+      </section>
+
+      <section>
+        <h2>Одоо анхаарч буй чиглэл</h2>
+        <div class="tags"><span>DevOps автоматжуулалт</span><span>TypeScript</span><span>Next.js</span><span>Node.js</span><span>Docker</span><span>API холболт</span><span>SaaS архитектур</span></div>
+      </section>
+    </aside>
+  </div>
+  <div class="foot"><span>Олдох Долгион — Анкет</span><span>2 / 2</span></div>
+</div>
+
+</body>
+</html>
