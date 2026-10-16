@@ -145,10 +145,10 @@ export const systems = {
       icon: "network",
       title: { en: "Network services up & running", mn: "Сүлжээг тасралтгүй ажиллуулах" } as Text,
       text: {
-        en: "Keep the network alive for every company: Check Point firewall, VPN, NAT, routing, Wi-Fi, switches, printers and IP telephony.",
-        mn: "Компани бүрийн сүлжээг тасралтгүй ажиллуулна: Check Point firewall, VPN, NAT, routing, Wi-Fi, свитч, принтер, IP утас.",
+        en: "Keep the network alive for every company: Check Point firewall, VPN, NAT, routing, Grandstream GWN Wi-Fi and switches managed through GWN.Cloud, printers and IP telephony.",
+        mn: "Компани бүрийн сүлжээг тасралтгүй ажиллуулна: Check Point firewall, VPN, NAT, routing, GWN.Cloud-оор удирддаг Grandstream GWN Wi-Fi ба свитч, принтер, IP утас.",
       } as Text,
-      tags: ["Check Point", "VPN · NAT", "Wi-Fi", "Switching", "IP phones"],
+      tags: ["Check Point", "Grandstream GWN", "GWN.Cloud", "VPN · NAT", "Wi-Fi", "Switching", "IP phones"],
     },
     {
       icon: "wrench",
@@ -165,6 +165,7 @@ export const systems = {
     { name: "PowerEdge R740", role: { en: "Production server", mn: "Production сервер" } as Text },
     { name: "NVR", role: { en: "CCTV recording", mn: "Камерын бичлэг" } as Text },
     { name: "Check Point", role: { en: "Firewall / VPN", mn: "Firewall / VPN" } as Text },
+    { name: "Grandstream GWN", role: { en: "Wi-Fi · GWN.Cloud", mn: "Wi-Fi · GWN.Cloud" } as Text },
     { name: "Core switch", role: { en: "Network", mn: "Сүлжээ" } as Text },
   ],
 };
@@ -313,8 +314,8 @@ export const experience = [
     period: "2026 — Now",
     bullets: [
       {
-        en: "Own IT for ~11 related companies: Dell PowerEdge R740 / R750 servers, networks, Check Point firewall, VPN, VMware, NVR cameras and IP telephony.",
-        mn: "~11 компанийн IT-г хариуцдаг: Dell PowerEdge R740 / R750 сервер, сүлжээ, Check Point firewall, VPN, VMware, NVR камер, IP утас.",
+        en: "Own IT for ~11 related companies: Dell PowerEdge R740 / R750 servers, networks, Check Point firewall, Grandstream GWN.Cloud Wi-Fi, VPN, VMware, NVR cameras and IP telephony.",
+        mn: "~11 компанийн IT-г хариуцдаг: Dell PowerEdge R740 / R750 сервер, сүлжээ, Check Point firewall, Grandstream GWN.Cloud Wi-Fi, VPN, VMware, NVR камер, IP утас.",
       },
       {
         en: "Replace and reinstall server SSDs and HDDs, format and rebuild PCs, and handle day-to-day support for every user.",
@@ -365,7 +366,7 @@ export const experience = [
 export const skills: { group: Text; items: string[] }[] = [
   {
     group: { en: "Infrastructure", mn: "Дэд бүтэц" },
-    items: ["Dell PowerEdge R740 / R750", "NVR / CCTV", "Windows Server", "Ubuntu / Linux", "VMware ESXi", "Check Point", "VPN · NAT · Routing", "TCP/IP · DNS · DHCP", "nginx", "UFW · TLS"],
+    items: ["Dell PowerEdge R740 / R750", "NVR / CCTV", "Windows Server", "Ubuntu / Linux", "VMware ESXi", "Check Point", "Grandstream GWN.Cloud", "VPN · NAT · Routing", "TCP/IP · DNS · DHCP", "nginx", "UFW · TLS"],
   },
   {
     group: { en: "ERP & Backend", mn: "ERP ба Backend" },
