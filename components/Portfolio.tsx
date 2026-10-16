@@ -416,7 +416,10 @@ function ItCore({ t, lang }: { t: UI; lang: Lang }) {
               {t.itcoreEyebrow} · <span className="live"><span className="pulse" /> {t.itcoreLive}</span>
             </Eyebrow>
             <h2 className="itcore-name">
-              <span className="logo-dot" /> {itcore.name}
+              <a className="itcore-brand" href={itcore.site} target="_blank" rel="noreferrer">
+                <Image src="/itcore-logo.png" alt="" width={256} height={256} className="itcore-logo" priority />
+                <span className="itcore-word">{itcore.name}</span>
+              </a>
             </h2>
             <p className="itcore-tagline">{itcore.tagline[lang]}</p>
             <p className="lead">{itcore.pitch[lang]}</p>
