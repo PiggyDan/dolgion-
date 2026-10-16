@@ -261,8 +261,8 @@ export const websites: Site[] = [
   },
   {
     name: "Paul's Home Repair",
-    url: "https://paulshome.vercel.app",
-    host: "paulshome.vercel.app",
+    url: "https://paulshome-pi.vercel.app",
+    host: "paulshome-pi.vercel.app",
     kind: { en: "Small business", mn: "Жижиг бизнес" },
     text: {
       en: "Bilingual service site with a booking calendar, chat assistant and an admin dashboard for schedule and availability.",
