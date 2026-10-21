@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type FormEvent, type PointerEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent, type PointerEvent, type ReactNode } from "react";
 import {
   AnimatePresence,
   MotionConfig,
@@ -25,6 +25,8 @@ import {
   Lock,
   Mail,
   Menu,
+  MapPin,
+  Maximize2,
   MessagesSquare,
   MonitorSmartphone,
   Network,
@@ -36,7 +38,9 @@ import {
   X,
 } from "lucide-react";
 import {
+  about,
   education,
+  employer,
   erp,
   experience,
   itcore,
@@ -49,6 +53,9 @@ import {
   type Text,
 } from "@/data/profile";
 import { ui, type UI } from "@/data/ui";
+
+export type Shot = { src: string; width: number; height: number };
+type Shots = { before: Shot | null; after: Shot | null };
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -111,8 +118,11 @@ function Header({ t, lang, setLang }: { t: UI; lang: Lang; setLang: (l: Lang) =>
 
   return (
     <header className="header">
+      <a className="skip-link" href="#main">
+        {t.skip}
+      </a>
       <motion.div className="progress" style={{ scaleX: progress }} />
-      <nav className="nav shell">
+      <nav className="nav shell" aria-label="Main">
         <a className="brand" href="#top" aria-label="Home">
           <span className="brand-avatar">
             <Image src="/dolgion-avatar.webp" alt="" width={46} height={46} priority />
@@ -125,7 +135,7 @@ function Header({ t, lang, setLang }: { t: UI; lang: Lang; setLang: (l: Lang) =>
         </a>
         <div className="nav-links">
           {t.nav.map(([label, href]) => (
-            <a key={href} href={href} className={href === "#itcore" ? "nav-hot" : undefined}>
+            <a key={href} href={href} className={href === "#erp" ? "nav-hot" : undefined}>
               {label}
             </a>
           ))}
@@ -193,7 +203,7 @@ function RotatingWord({ words }: { words: string[] }) {
   );
 }
 
-function Hero({ t }: { t: UI }) {
+function Hero({ t, lang }: { t: UI; lang: Lang }) {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const imgY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
@@ -202,20 +212,20 @@ function Hero({ t }: { t: UI }) {
     <section className="hero shell" id="top" ref={ref}>
       <div className="hero-copy">
         <motion.a
-          href="#itcore"
+          href="#erp"
           className="now-pill"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease }}
         >
-          <span className="pulse" />
+          <span className="pulse amber" />
           <span className="muted">{t.nowBuilding}</span>
-          <strong>itcore.dev</strong>
+          <strong>{t.nowProject}</strong>
           <ArrowRight size={14} />
         </motion.a>
 
         <motion.p className="hero-overline" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }}>
-          {t.heroOverline}
+          <span className="hero-name">{profile.fullName}</span> · {t.heroOverline}
         </motion.p>
 
         <h1 className="hero-title">
@@ -251,19 +261,31 @@ function Hero({ t }: { t: UI }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease, delay: 0.55 }}
         >
-          <a className="btn btn-primary" href="#itcore">
-            {t.seeItcore} <ArrowRight size={16} />
+          <a className="btn btn-primary" href="#erp">
+            {t.seeCase} <ArrowRight size={16} />
           </a>
-          <a className="btn btn-ghost" href="#contact">
-            {t.contact}
+          <a className="btn btn-ghost" href={profile.resume[lang]} target="_blank" rel="noreferrer">
+            <Download size={16} /> {t.downloadCv}
           </a>
           <a className="icon-link" href={profile.github} target="_blank" rel="noreferrer" aria-label="GitHub">
             <Github size={18} />
           </a>
-          <a className="icon-link" href={`mailto:${profile.email}`} aria-label="Email">
+          <a className="icon-link" href={`mailto:${profile.email}`} aria-label={`Email ${profile.email}`}>
             <Mail size={18} />
           </a>
         </motion.div>
+
+        <motion.ul
+          className="hero-specs"
+          aria-label="Specializations"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.75 }}
+        >
+          {profile.specializations.map((s) => (
+            <li key={s}>{s}</li>
+          ))}
+        </motion.ul>
       </div>
 
       <motion.div
@@ -274,7 +296,7 @@ function Hero({ t }: { t: UI }) {
       >
         <div className="portrait-frame">
           <motion.div style={{ y: imgY }} className="portrait-inner">
-            <Image src="/dolgion-hero.png" alt="Dolgion" fill priority sizes="(max-width: 900px) 100vw, 560px" className="portrait" />
+            <Image src="/dolgion-hero.png" alt="Portrait of O. Dolgion" fill priority sizes="(max-width: 900px) 100vw, 560px" className="portrait" />
           </motion.div>
           <div className="portrait-badge">
             <span className="pulse" /> {t.available}
@@ -300,7 +322,7 @@ function Hero({ t }: { t: UI }) {
 }
 
 function Marquee() {
-  const items = ["Odoo 19", "Python", "PostgreSQL", "React", "Next.js", "TypeScript", "Cloudflare Workers", "Electron", "Check Point", "VMware ESXi", "Ubuntu", "nginx", "Docker", "Git"];
+  const items = ["Ubuntu Linux", "Windows Server", "VMware ESXi", "Dell PowerEdge", "Check Point", "VPN · NAT", "PostgreSQL", "Odoo 13 → 19", "Python", "nginx", "Git", "React", "Next.js", "TypeScript"];
   return (
     <div className="marquee" aria-hidden="true">
       <div className="marquee-track">
@@ -593,17 +615,148 @@ function Systems({ t, lang }: { t: UI; lang: Lang }) {
 
 /* ------------------------------------------------------------------ */
 
-function Erp({ t, lang }: { t: UI; lang: Lang }) {
+function About({ t, lang }: { t: UI; lang: Lang }) {
+  return (
+    <section className="section shell" id="about">
+      <div className="about">
+        <Reveal>
+          <Eyebrow>{t.aboutEyebrow}</Eyebrow>
+          <h2 className="h2 wide">{t.aboutTitle}</h2>
+          <div className="about-copy">
+            {about.paragraphs.map((p) => (
+              <p key={p.en}>{p[lang]}</p>
+            ))}
+          </div>
+        </Reveal>
+        <Reveal delay={0.1} className="about-side">
+          <dl className="facts">
+            {about.facts.map((f) => (
+              <div key={f.label.en}>
+                <dt>{f.label[lang]}</dt>
+                <dd>{f.value[lang]}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mini-label">{t.targetRoles}</p>
+          <div className="chips small">
+            {about.targetRoles.map((r) => (
+              <span key={r}>{r}</span>
+            ))}
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+
+type ShotSlot = { shot: Shot | null; label: string; caption: string; alt: string; tone: "old" | "new" };
+
+function Lightbox({ slot, onClose, t }: { slot: ShotSlot; onClose: () => void; t: UI }) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = overflow;
+      opener?.focus();
+    };
+  }, [onClose]);
+
+  if (!slot.shot) return null;
+  return (
+    <motion.div
+      className="lightbox"
+      role="dialog"
+      aria-modal="true"
+      aria-label={slot.label}
+      onClick={onClose}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+    >
+      <div className="lightbox-bar" onClick={(e) => e.stopPropagation()}>
+        <strong>{slot.label}</strong>
+        <a href={slot.shot.src} target="_blank" rel="noreferrer">
+          {t.erpOpen} <ArrowUpRight size={14} />
+        </a>
+        <button ref={closeRef} onClick={onClose} aria-label={t.erpClose}>
+          <X size={20} />
+        </button>
+      </div>
+      <motion.img
+        src={slot.shot.src}
+        width={slot.shot.width}
+        height={slot.shot.height}
+        alt={slot.alt}
+        className="lightbox-img"
+        onClick={(e) => e.stopPropagation()}
+        initial={{ scale: 0.97 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 0.25, ease }}
+      />
+    </motion.div>
+  );
+}
+
+function ShotFigure({ slot, onOpen, t }: { slot: ShotSlot; onOpen: () => void; t: UI }) {
+  return (
+    <figure className={`shot shot-${slot.tone}`}>
+      <figcaption className="shot-label">
+        <span className="shot-dot" /> {slot.label}
+      </figcaption>
+      {slot.shot ? (
+        <button className="shot-frame" onClick={onOpen} aria-label={`${slot.label} — ${t.erpOpen}`}>
+          <Image
+            src={slot.shot.src}
+            width={slot.shot.width}
+            height={slot.shot.height}
+            alt={slot.alt}
+            sizes="(max-width: 860px) 100vw, 600px"
+          />
+          <span className="shot-zoom">
+            <Maximize2 size={14} /> {t.erpOpen}
+          </span>
+        </button>
+      ) : (
+        <div className="shot-frame shot-missing">{t.erpPending}</div>
+      )}
+      <p className="shot-caption">{slot.caption}</p>
+    </figure>
+  );
+}
+
+function Erp({ t, lang, shots }: { t: UI; lang: Lang; shots: Shots }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 80%", "end 60%"] });
   const line = useSpring(scrollYProgress, { stiffness: 80, damping: 25 });
+  const [open, setOpen] = useState<ShotSlot | null>(null);
+  const close = useCallback(() => setOpen(null), []);
+
+  const slots: ShotSlot[] = (["before", "after"] as const).map((key) => ({
+    shot: shots[key],
+    label: erp.screenshots[key].label[lang],
+    caption: erp.screenshots[key].caption[lang],
+    alt: erp.screenshots[key].alt,
+    tone: key === "before" ? "old" : "new",
+  }));
 
   return (
-    <section className="section shell" id="erp">
-      <div className="erp-top">
-        <Reveal>
-          <Eyebrow>{t.erpEyebrow}</Eyebrow>
-          <div className="version-jump">
+    <section className="section erp-section" id="erp">
+      <div className="shell">
+        <Reveal className="erp-head">
+          <Eyebrow>
+            {t.erpEyebrow} · <span className="status-pill"><span className="pulse amber" /> {t.erpStatus}</span>
+          </Eyebrow>
+          <div className="version-jump" aria-hidden="true">
             <span className="v-old">13</span>
             <motion.span
               className="v-arrow"
@@ -614,58 +767,120 @@ function Erp({ t, lang }: { t: UI; lang: Lang }) {
             />
             <span className="v-new">19</span>
           </div>
-          <h2 className="h2">{erp.title[lang]}</h2>
+          <p className="erp-name">{erp.name[lang]}</p>
+          <h2 className="h2 wide">{erp.title[lang]}</h2>
           <p className="lead">{erp.summary[lang]}</p>
         </Reveal>
-        <div className="erp-stats">
-          {erp.stats.map((s, i) => (
-            <Reveal key={s.value} delay={i * 0.06} className="stat">
-              <strong>
-                <CountUp value={s.value} />
-              </strong>
-              <span>{s.label[lang]}</span>
+
+        <Reveal>
+          <dl className="erp-meta">
+            {erp.meta.map((m) => (
+              <div key={m.label.en}>
+                <dt>{m.label[lang]}</dt>
+                <dd>{m.value[lang]}</dd>
+              </div>
+            ))}
+          </dl>
+        </Reveal>
+
+        <Reveal className="compare-wrap">
+          <p className="mini-label">{t.erpCompare}</p>
+          <div className="compare">
+            {slots.map((slot) => (
+              <ShotFigure key={slot.tone} slot={slot} onOpen={() => setOpen(slot)} t={t} />
+            ))}
+          </div>
+          <p className="compare-note">{erp.screenshots.note[lang]}</p>
+        </Reveal>
+
+        <div className="erp-split">
+          <Reveal>
+            <p className="mini-label">{t.erpAudit}</p>
+            <div className="erp-stats">
+              {erp.stats.map((s) => (
+                <div key={s.value} className="stat">
+                  <strong>
+                    <CountUp value={s.value} />
+                  </strong>
+                  <span>{s.label[lang]}</span>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+          <Reveal delay={0.08}>
+            <p className="mini-label">{t.erpAreas}</p>
+            <ul className="area-list">
+              {erp.areas.map((a) => (
+                <li key={a}>
+                  <Check size={14} /> {a}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+        </div>
+
+        <Reveal>
+          <p className="mini-label phases-label">{t.erpPhases}</p>
+        </Reveal>
+        <div className="steps" ref={ref}>
+          <div className="steps-rail">
+            <motion.div className="steps-fill" style={{ scaleY: line }} />
+          </div>
+          {erp.phases.map((step, i) => (
+            <Reveal key={step.title.en} delay={0.05} className={`step step-${step.status}`}>
+              <span className="step-num">0{i + 1}</span>
+              <div>
+                <div className="step-head">
+                  <h3>{step.title[lang]}</h3>
+                  <span className={`phase-tag tag-${step.status}`}>{t.erpPhaseStatus[step.status]}</span>
+                </div>
+                <p>{step.text[lang]}</p>
+              </div>
             </Reveal>
           ))}
         </div>
-      </div>
 
-      <div className="steps" ref={ref}>
-        <div className="steps-rail">
-          <motion.div className="steps-fill" style={{ scaleY: line }} />
-        </div>
-        {erp.steps.map((step, i) => (
-          <Reveal key={step.title.en} delay={0.05} className="step">
-            <span className="step-num">0{i + 1}</span>
-            <div>
-              <h3>{step.title[lang]}</h3>
-              <p>{step.text[lang]}</p>
-            </div>
-          </Reveal>
-        ))}
-      </div>
-
-      <Reveal className="modules">
-        <p className="mini-label">{t.erpModules}</p>
-        <div className="module-grid">
-          {erp.modules.map((m, i) => (
-            <motion.span
-              key={m}
-              className="module"
-              initial={{ opacity: 0, y: 8 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.03 }}
-            >
-              <Check size={13} /> {m}
-            </motion.span>
+        <Reveal>
+          <p className="mini-label phases-label">{t.erpChallenges}</p>
+        </Reveal>
+        <div className="challenge-grid">
+          {erp.challenges.map((c, i) => (
+            <Reveal key={c.title.en} delay={(i % 2) * 0.06} className="challenge">
+              <h3>{c.title[lang]}</h3>
+              <p>{c.text[lang]}</p>
+            </Reveal>
           ))}
         </div>
-        <div className="chips">
-          {erp.stack.map((s) => (
-            <span key={s}>{s}</span>
-          ))}
-        </div>
-      </Reveal>
+
+        <Reveal className="modules">
+          <p className="mini-label">{t.erpModules}</p>
+          <div className="module-grid">
+            {erp.modules.map((m, i) => (
+              <motion.span
+                key={m}
+                className="module"
+                initial={{ opacity: 0, y: 8 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.03 }}
+              >
+                {m}
+              </motion.span>
+            ))}
+          </div>
+          <div className="chips">
+            {erp.stack.map((s) => (
+              <span key={s}>{s}</span>
+            ))}
+          </div>
+        </Reveal>
+
+        <Reveal>
+          <p className="honesty">{t.erpHonesty}</p>
+        </Reveal>
+      </div>
+
+      <AnimatePresence>{open && <Lightbox slot={open} onClose={close} t={t} />}</AnimatePresence>
     </section>
   );
 }
@@ -777,6 +992,9 @@ function Experience({ t, lang }: { t: UI; lang: Lang }) {
         ))}
       </div>
 
+      <Reveal>
+        <h3 className="sub-head" id="skills">{t.skillsEyebrow}</h3>
+      </Reveal>
       <div className="skills">
         {skills.map((s, i) => (
           <Reveal key={s.group.en} delay={i * 0.06} className="skill-col">
@@ -788,17 +1006,29 @@ function Experience({ t, lang }: { t: UI; lang: Lang }) {
             </div>
           </Reveal>
         ))}
-        <Reveal delay={0.2} className="skill-col edu">
+      </div>
+
+      <div className="edu-row">
+        <Reveal className="skill-col edu">
           <p className="mini-label">{t.educationEyebrow}</p>
           <h3>{education.title[lang]}</h3>
           <p>{education.detail[lang]}</p>
+        </Reveal>
+        <Reveal delay={0.06} className="skill-col cv-card">
+          <p className="mini-label">{t.resume}</p>
+          <a href={profile.resume.en} target="_blank" rel="noreferrer">
+            <Download size={16} /> {t.cvEn}
+          </a>
+          <a href={profile.resume.mn} target="_blank" rel="noreferrer">
+            <Download size={16} /> {t.cvMn}
+          </a>
         </Reveal>
       </div>
     </section>
   );
 }
 
-function Contact({ t }: { t: UI }) {
+function Contact({ t, lang }: { t: UI; lang: Lang }) {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
 
   const submit = (e: FormEvent<HTMLFormElement>) => {
@@ -824,6 +1054,12 @@ function Contact({ t }: { t: UI }) {
           <a href={profile.github} target="_blank" rel="noreferrer">
             <Github size={16} /> github.com/PiggyDan
           </a>
+          <a href={profile.resume[lang]} target="_blank" rel="noreferrer">
+            <Download size={16} /> {t.downloadCv}
+          </a>
+          <span>
+            <MapPin size={16} /> {profile.location[lang]} · {profile.availability[lang]}
+          </span>
         </div>
       </Reveal>
       <Reveal delay={0.1}>
@@ -851,7 +1087,7 @@ function Contact({ t }: { t: UI }) {
 
 /* ------------------------------------------------------------------ */
 
-export default function Portfolio() {
+export default function Portfolio({ shots }: { shots: Shots }) {
   const [lang, setLangState] = useState<Lang>("en");
   const t = ui[lang] as UI;
 
@@ -877,19 +1113,23 @@ export default function Portfolio() {
     <MotionConfig reducedMotion="user">
       <div className="bg-grid" aria-hidden="true" />
       <Header t={t} lang={lang} setLang={setLang} />
-      <main>
-        <Hero t={t} />
+      <main id="main">
+        <Hero t={t} lang={lang} />
         <Marquee />
-        <ItCore t={t} lang={lang} />
+        <About t={t} lang={lang} />
+        <Erp t={t} lang={lang} shots={shots} />
         <Systems t={t} lang={lang} />
-        <Erp t={t} lang={lang} />
+        <ItCore t={t} lang={lang} />
         <Websites t={t} lang={lang} />
         <Experience t={t} lang={lang} />
-        <Contact t={t} />
+        <Contact t={t} lang={lang} />
       </main>
       <footer className="footer shell">
         <span>© {new Date().getFullYear()} {profile.fullName}</span>
         <span>{t.footer}</span>
+        <a href={employer.site} target="_blank" rel="noreferrer">
+          {employer.host} ↗
+        </a>
         <a href={itcore.site} target="_blank" rel="noreferrer">
           itcore.dev ↗
         </a>

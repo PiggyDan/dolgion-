@@ -7,13 +7,59 @@ export type Text = Record<Lang, string>;
 export const profile = {
   name: "Dolgion",
   fullName: "O. Dolgion",
-  email: "odolgion222@gmail.com",
+  email: "itdolgion@gmail.com",
   phone: "+976 8909 0126",
   github: "https://github.com/PiggyDan",
   linkedin: "",
+  site: "https://daniel70.netlify.app",
+  headline: { en: "IT Infrastructure & Systems Engineer", mn: "IT дэд бүтэц ба системийн инженер" } as Text,
+  specializations: ["Windows & Linux Administration", "Networking", "Virtualization", "ERP Operations"],
   // The Resume button downloads the PDF that matches the selected language.
   resume: { en: "/Dolgion_Oldokh_Resume_2026.pdf", mn: "/Dolgion_Oldokh_Resume_2026_MN.pdf" } as Text,
   location: { en: "Ulaanbaatar, Mongolia", mn: "Улаанбаатар, Монгол" } as Text,
+  availability: {
+    en: "Open to international roles — remote or with relocation",
+    mn: "Олон улсын ажилд нээлттэй — зайнаас эсвэл нүүж очиж",
+  } as Text,
+};
+
+// One spelling for the employer everywhere on the page.
+export const employer = { name: "Govikhangai Khudulmur LLC", site: "https://www.gkllc.mn", host: "gkllc.mn" };
+
+/* ------------------------------------------------------------------ */
+/* About                                                               */
+/* ------------------------------------------------------------------ */
+
+export const about = {
+  paragraphs: [
+    {
+      en: "I'm an IT infrastructure and systems engineer based in Ulaanbaatar, Mongolia. My current role combines System Engineer and IT Manager responsibilities for a group of about 11 related companies: servers, virtualization, networks, firewalls, CCTV, end-user support and the group's Odoo ERP.",
+      mn: "Би Улаанбаатарт ажилладаг IT дэд бүтэц, системийн инженер. Одоогийн ажилдаа Систем инженер болон IT менежерийн үүргийг хослуулан ~11 компанийн сервер, виртуалчлал, сүлжээ, firewall, камер, хэрэглэгчийн дэмжлэг, Odoo ERP-г хариуцдаг.",
+    },
+    {
+      en: "Before that I supported POS terminals, self-service kiosks and back-office systems across a multi-branch KFC restaurant network, and worked in IT support for a remote mining exploration company. That mix taught me to troubleshoot under pressure and to fix the cause, not just the symptom.",
+      mn: "Өмнө нь олон салбартай KFC рестораны POS, өөрөө үйлчлэх киоск, оффисын системийг дэмжиж, алслагдсан хайгуулын компанид IT дэмжлэгээр ажилласан. Энэ туршлага дарамттай үед асуудлыг шалтгаанаас нь шийдэж сургасан.",
+    },
+    {
+      en: "Right now I'm leading the migration of the group's ERP from Odoo 13 to Odoo 19 Community — the project documented below.",
+      mn: "Одоо группийн ERP-г Odoo 13-аас Odoo 19 Community руу шилжүүлэх ажлыг удирдаж байна — доорх кейс судалгаанд дэлгэрэнгүй бий.",
+    },
+  ] as Text[],
+  facts: [
+    { label: { en: "Based in", mn: "Байршил" } as Text, value: { en: "Ulaanbaatar, Mongolia", mn: "Улаанбаатар, Монгол" } as Text },
+    { label: { en: "Current role", mn: "Одоогийн ажил" } as Text, value: { en: "System Engineer & IT Manager", mn: "Систем инженер ба IT менежер" } as Text },
+    { label: { en: "Focus", mn: "Чиглэл" } as Text, value: { en: "Infrastructure · Linux · ERP operations", mn: "Дэд бүтэц · Linux · ERP ажиллагаа" } as Text },
+    { label: { en: "Languages", mn: "Хэл" } as Text, value: { en: "Mongolian (native) · English", mn: "Монгол (төрөлх) · Англи" } as Text },
+  ],
+  targetRoles: [
+    "IT Infrastructure Engineer",
+    "Systems Administrator",
+    "Linux Systems Administrator",
+    "IT Support Engineer",
+    "Technical Support Engineer",
+    "ERP Technical Support Engineer",
+    "Junior Cloud / DevOps Engineer",
+  ],
 };
 
 /* ------------------------------------------------------------------ */
@@ -174,50 +220,141 @@ export const systems = {
 /* ERP 19 — Odoo 13 → Odoo 19 migration                                */
 /* ------------------------------------------------------------------ */
 
+// Everything here is taken from the migration report (MIGRATION-ODOO19.md) and the
+// module repository. The project is IN PROGRESS: never describe it as completed.
+export type PhaseStatus = "done" | "active" | "planned";
+
 export const erp = {
-  title: { en: "ERP 19 — moving a live group ERP from Odoo 13 to Odoo 19", mn: "ERP 19 — группийн ERP-г Odoo 13-аас Odoo 19 руу шилжүүлэлт" } as Text,
-  summary: {
-    en: "The company group ran five years of operations on a heavily customized Odoo 13. I audited every module, mapped the dependency chain, ported the custom modules to Odoo 19 Community and stood up a hardened production server — then connected it to the public website.",
-    mn: "Компаниудын групп таван жил тусгайлан өөрчилсөн Odoo 13 дээр ажилласан. Би модуль бүрийг шинжилж, хамаарлын гинжийг зурж, өөрийн модулиудыг Odoo 19 Community руу шилжүүлж, хамгаалалттай production сервер босгоод, олон нийтийн вэбтэй холбосон.",
+  name: { en: "Enterprise ERP Modernization — Odoo 13 to Odoo 19 Community", mn: "ERP шинэчлэл — Odoo 13-аас Odoo 19 Community руу" } as Text,
+  title: {
+    en: "Moving a heavily customized group ERP from Odoo 13 to Odoo 19 Community",
+    mn: "Ихээхэн өөрчилсөн группийн ERP-г Odoo 13-аас Odoo 19 Community руу шилжүүлэх",
   } as Text,
-  stats: [
-    { value: "375", label: { en: "Module manifests audited", mn: "Шинжилсэн модуль" } as Text },
-    { value: "225k", label: { en: "Lines in the dependency chain", mn: "Хамаарлын гинжин дэх мөр код" } as Text },
-    { value: "15", label: { en: "Custom GKK modules", mn: "GKK өөрийн модуль" } as Text },
-    { value: "1,100+", label: { en: "Commits of history carried over", mn: "Шилжүүлсэн commit түүх" } as Text },
+  summary: {
+    en: "The company group runs accounting, inventory, HR, payroll, transport and maintenance on a customized Odoo 13 Community system. I'm migrating it to Odoo 19 Community: auditing every module, porting the custom code, and validating it on separate test databases before any production cutover.",
+    mn: "Компаниудын групп санхүү, агуулах, хүний нөөц, цалин, тээвэр, засварын ажлаа өөрчилсөн Odoo 13 Community систем дээр явуулдаг. Би үүнийг Odoo 19 Community руу шилжүүлж байна: модуль бүрийг шинжилж, өөрийн кодыг шилжүүлж, production руу шилжихээс өмнө тусдаа тест өгөгдлийн сан дээр шалгаж байна.",
+  } as Text,
+  meta: [
+    { label: { en: "Company", mn: "Байгууллага" } as Text, value: { en: employer.name, mn: "Говьхангай Хөдөлмөр ХХК" } as Text },
+    { label: { en: "My role", mn: "Миний үүрэг" } as Text, value: { en: "System Engineer & IT Manager — migration lead", mn: "Систем инженер ба IT менежер — шилжүүлэлтийг удирдагч" } as Text },
+    { label: { en: "Scope", mn: "Хамрах хүрээ" } as Text, value: { en: "Accounting · Inventory · HR · Payroll · Transport · Maintenance", mn: "Санхүү · Агуулах · Хүний нөөц · Цалин · Тээвэр · Засвар" } as Text },
+    { label: { en: "Status", mn: "Төлөв" } as Text, value: { en: "In progress — Odoo 13 is still the live system", mn: "Хийгдэж байна — Odoo 13 одоо ч ажиллаж байгаа систем" } as Text },
   ],
-  steps: [
+  screenshots: {
+    before: {
+      label: { en: "Odoo 13 — Existing ERP", mn: "Odoo 13 — Одоогийн ERP" } as Text,
+      caption: {
+        en: "The current Odoo 13 Community environment the group runs on today.",
+        mn: "Группийн өнөөдөр ашиглаж буй Odoo 13 Community орчин.",
+      } as Text,
+      alt: "Screenshot of the existing Odoo 13 Community ERP home screen",
+    },
+    after: {
+      label: { en: "Odoo 19 — Migration / Test Environment", mn: "Odoo 19 — Шилжүүлэлтийн / тест орчин" } as Text,
+      caption: {
+        en: "The Odoo 19 Community test server with migrated modules installed and the branded GKK / TKMI home screen. Browser address bar removed for privacy.",
+        mn: "Шилжүүлсэн модулиуд суусан, GKK / TKMI брэндийн нүүр дэлгэцтэй Odoo 19 Community тест сервер. Нууцлалын үүднээс хөтчийн хаягийн мөрийг хассан.",
+      } as Text,
+      alt: "Screenshot of the Odoo 19 Community test environment home screen with Mongolian app menu",
+    },
+    note: {
+      en: "A new home screen is not proof of a successful migration. The real evidence is the module installs and runtime tests on the test databases, described below.",
+      mn: "Шинэ нүүр дэлгэц нь шилжүүлэлт амжилттай болсны баталгаа биш. Бодит нотолгоо нь тест өгөгдлийн сан дээрх модулийн суулгалт ба ажиллагааны тестүүд — доор тайлбарлав.",
+    } as Text,
+  },
+  // Measured during the audit — inputs to the project, not outcomes.
+  stats: [
+    { value: "375", label: { en: "Module manifests audited", mn: "Шинжилсэн модулийн manifest" } as Text },
+    { value: "46", label: { en: "Third-party modules in the dependency chain", mn: "Хамаарлын гинжин дэх гуравдагч модуль" } as Text },
+    { value: "225k", label: { en: "Lines of Python, XML and JS in that chain", mn: "Тэр гинжин дэх Python, XML, JS мөр" } as Text },
+    { value: "6", label: { en: "Enterprise-only modules to replace", mn: "Солих шаардлагатай Enterprise модуль" } as Text },
+  ],
+  areas: [
+    "Ubuntu Linux server administration",
+    "VMware ESXi virtualization",
+    "PostgreSQL backup & migration planning",
+    "Odoo custom-module migration",
+    "Python development & debugging",
+    "ERP infrastructure & deployment",
+    "Accounting & inventory workflows",
+    "Data integrity & validation planning",
+    "Backup & rollback procedures",
+    "Testing & troubleshooting",
+  ],
+  phases: [
     {
-      title: { en: "Audit", mn: "Шинжилгээ" } as Text,
+      status: "done" as PhaseStatus,
+      title: { en: "Audit & dependency mapping", mn: "Шинжилгээ ба хамаарлын зураглал" } as Text,
       text: {
-        en: "Mapped 375 manifests, found the 46 third-party modules actually in use and flagged Enterprise-only code and removed APIs.",
-        mn: "375 модулийг шинжилж, бодитоор ашиглагдаж буй 46 гуравдагч модуль, Enterprise код, хасагдсан API-г тодорхойлсон.",
+        en: "Audited 375 module manifests and traced which of them the custom modules actually depend on: 46 third-party modules (~225,000 lines). The other 317 are unused and stay behind. Documented every Odoo 13 → 19 incompatibility in a written migration report.",
+        mn: "375 модулийн manifest-ийг шинжилж, өөрийн модулиуд аль модулиас хамаардгийг тогтоосон: 46 гуравдагч модуль (~225,000 мөр). Үлдсэн 317 нь ашиглагддаггүй. Odoo 13 → 19 үл нийцлийг шилжүүлэлтийн тайланд бүртгэсэн.",
       } as Text,
     },
     {
-      title: { en: "Port", mn: "Шилжүүлэлт" } as Text,
+      status: "active" as PhaseStatus,
+      title: { en: "Port & validate modules locally", mn: "Модулийг шилжүүлж, локалд шалгах" } as Text,
       text: {
-        en: "Rewrote views, models and legacy JS widgets for Odoo 19 — HR, timetable, salary, stock, transport, accounting and maintenance.",
-        mn: "HR, цагийн хуваарь, цалин, агуулах, тээвэр, санхүү, засварын модулиудыг Odoo 19-д тааруулж дахин бичсэн.",
+        en: "Porting module by module against the real Odoo 19 source: view and model API changes, hr.contract → hr.version, removed stock models, and legacy JavaScript widgets that no longer load. Each module is installed into a throw-away Odoo 19 database and its main flows are runtime-tested.",
+        mn: "Модуль бүрийг Odoo 19-ийн жинхэнэ эх код дээр шилжүүлж байна: view, model API-ийн өөрчлөлт, hr.contract → hr.version, хасагдсан агуулахын model, ачаалагдахгүй болсон хуучин JavaScript widget. Модуль бүрийг түр Odoo 19 өгөгдлийн санд суулгаж, үндсэн урсгалыг тестэлдэг.",
       } as Text,
     },
     {
-      title: { en: "Harden & deploy", mn: "Хамгаалж нэвтрүүлэх" } as Text,
+      status: "active" as PhaseStatus,
+      title: { en: "Test server & test databases", mn: "Тест сервер ба тест өгөгдлийн сан" } as Text,
       text: {
-        en: "Ubuntu 24.04 server with nginx reverse proxy, UFW firewall, Let's Encrypt TLS and a scripted hardening playbook.",
-        mn: "Ubuntu 24.04, nginx reverse proxy, UFW firewall, Let's Encrypt TLS болон автомат хамгаалалтын скрипт.",
+        en: "Odoo 19 runs on a separate Ubuntu 24.04 test server, with a dedicated PostgreSQL 16 test database server. Module bundles are installed onto copied test databases — never onto production — and server-only issues are logged and fixed.",
+        mn: "Odoo 19 нь тусдаа Ubuntu 24.04 тест сервер дээр, тусгай PostgreSQL 16 тест өгөгдлийн сангийн сервертэй ажилладаг. Модулийн багцуудыг production биш, хуулбарласан тест өгөгдлийн санд суулгаж, зөвхөн сервер дээр гарсан алдааг бүртгэж засдаг.",
       } as Text,
     },
     {
-      title: { en: "Integrate", mn: "Холболт" } as Text,
+      status: "planned" as PhaseStatus,
+      title: { en: "Data validation & parallel checks", mn: "Өгөгдөл шалгах ба зэрэгцүүлэн харьцуулах" } as Text,
       text: {
-        en: "Custom branded login and home screen, plus a jobs API that publishes vacancies to gkllc.mn and receives CV uploads.",
-        mn: "Брэндийн нэвтрэх болон нүүр дэлгэц, gkllc.mn руу ажлын зар нийтэлж CV хүлээн авах jobs API.",
+        en: "Before go-live: run a full payroll month on migrated data and compare every line with Odoo 13, configure stock valuation accounts and reconcile a month of inventory, and have key users check their workflows.",
+        mn: "Нэвтрүүлэхээс өмнө: шилжүүлсэн өгөгдөл дээр нэг сарын цалинг бодож Odoo 13-тай мөр бүрээр харьцуулах, агуулахын үнэлгээний данс тохируулж нэг сарын бараа тулгах, гол хэрэглэгчдээр ажлын урсгалаа шалгуулах.",
+      } as Text,
+    },
+    {
+      status: "planned" as PhaseStatus,
+      title: { en: "Cutover with backup & rollback", mn: "Backup ба буцаах төлөвлөгөөтэй шилжилт" } as Text,
+      text: {
+        en: "Full PostgreSQL dump and filestore backup of Odoo 13, a documented rollback path, then the production data migration and switchover.",
+        mn: "Odoo 13-ийн PostgreSQL болон filestore-ийн бүрэн backup, баримтжуулсан буцаах зам, дараа нь production өгөгдлийн шилжүүлэлт ба шилжилт.",
+      } as Text,
+    },
+  ],
+  challenges: [
+    {
+      title: { en: "Enterprise code in a Community target", mn: "Community руу шилжихэд Enterprise код" } as Text,
+      text: {
+        en: "Six modules in the chain were Odoo Enterprise source (accounting reports, assets, budgets, Gantt, grid). They can't be used in Odoo 19 Community, and through the asset module they blocked transport, technic, stock, timetable and salary. They have to be replaced with Community/OCA alternatives or rewritten.",
+        mn: "Гинжин дэх зургаан модуль Odoo Enterprise код байсан (санхүүгийн тайлан, хөрөнгө, төсөв, Gantt, grid). Тэдгээрийг Odoo 19 Community-д ашиглах боломжгүй бөгөөд хөрөнгийн модулиар дамжин тээвэр, техник, агуулах, цагийн хуваарь, цалинг хааж байсан. Community/OCA хувилбараар солих эсвэл дахин бичих шаардлагатай.",
+      } as Text,
+    },
+    {
+      title: { en: "HR contracts became versions", mn: "HR гэрээ → хувилбар" } as Text,
+      text: {
+        en: "Odoo 19 merges hr.contract into hr.version, so every HR, timetable and payroll module that read contracts — including raw SQL reports — has to be re-pointed. Payroll is flagged for human verification against Odoo 13.",
+        mn: "Odoo 19 нь hr.contract-ийг hr.version-д нэгтгэсэн тул гэрээ уншдаг HR, цагийн хуваарь, цалингийн модуль бүрийг, тэр дундаа SQL тайлангуудыг дахин холбох шаардлагатай. Цалинг Odoo 13-тай хүнээр тулгаж шалгахаар тэмдэглэсэн.",
+      } as Text,
+    },
+    {
+      title: { en: "Legacy JavaScript", mn: "Хуучин JavaScript" } as Text,
+      text: {
+        en: "All Odoo 13 widgets use the old odoo.define / Widget API that was removed in Odoo 17. They were taken out of the asset bundles so views fall back to standard widgets; anything still needed gets rewritten in OWL.",
+        mn: "Odoo 13-ийн бүх widget Odoo 17-д хасагдсан odoo.define / Widget API ашигладаг. Тэдгээрийг asset bundle-аас хасч, view-үүд стандарт widget ашиглана; хэрэгтэй хэсгийг OWL-оор дахин бичнэ.",
+      } as Text,
+    },
+    {
+      title: { en: "Server-only failures", mn: "Зөвхөн сервер дээр гарах алдаа" } as Text,
+      text: {
+        en: "Some bugs only appeared on the test server because modules were installed in a different order than locally — one blanked the whole web client. Each was traced, fixed and recorded in the deployment log.",
+        mn: "Зарим алдаа модулийг локалаас өөр дарааллаар суулгасан тул зөвхөн тест сервер дээр гарсан — нэг нь вэб клиентийг бүхэлд нь хоосон болгосон. Тус бүрийг олж, засаж, deployment log-д бүртгэсэн.",
       } as Text,
     },
   ],
   modules: ["gkk_hr", "gkk_timetable", "gkk_salary", "gkk_account", "gkk_stock", "gkk_trans", "gkk_maintenance", "gkk_technic", "gkk_purchase_and_request", "gkk_document", "gkk_camp_register", "gkk_jobs_api", "gkk_website", "gkk_ui", "mw_spare_parts"],
-  stack: ["Odoo 19", "Python", "PostgreSQL", "OWL", "Ubuntu 24.04", "nginx", "Git / GitLab"],
+  stack: ["Odoo 13 / 19 Community", "Python", "PostgreSQL 16", "OWL", "Ubuntu 24.04", "VMware ESXi", "nginx", "Git / GitLab"],
 };
 
 /* ------------------------------------------------------------------ */
@@ -309,8 +446,8 @@ export const websites: Site[] = [
 
 export const experience = [
   {
-    company: "Govikhangai Khudulmur LLC",
-    role: { en: "System Engineer · ERP · DevOps", mn: "Систем инженер · ERP · DevOps" } as Text,
+    company: employer.name,
+    role: { en: "System Engineer & IT Manager", mn: "Систем инженер ба IT менежер" } as Text,
     period: "2026 — Now",
     bullets: [
       {
@@ -322,8 +459,8 @@ export const experience = [
         mn: "Серверийн SSD, HDD солих, дахин суулгах, компьютер форматлах, дахин угсрах, хэрэглэгч бүрийн өдөр тутмын дэмжлэг.",
       },
       {
-        en: "Led the ERP 19 migration from Odoo 13 to Odoo 19 and deployed the hardened production server.",
-        mn: "Odoo 13-аас Odoo 19 руу ERP 19 шилжүүлэлтийг удирдаж, хамгаалалттай production сервер нэвтрүүлсэн.",
+        en: "Leading the in-progress migration of the group ERP from Odoo 13 to Odoo 19 Community: module audit, porting and validation on a separate Ubuntu test server.",
+        mn: "Группийн ERP-г Odoo 13-аас Odoo 19 Community руу шилжүүлэх ажлыг удирдаж байна: модулийн шинжилгээ, шилжүүлэлт, тусдаа Ubuntu тест сервер дээрх шалгалт.",
       },
       {
         en: "Built gkllc.mn with live ERP job listings and internal tools that remove manual paperwork.",
@@ -365,16 +502,20 @@ export const experience = [
 
 export const skills: { group: Text; items: string[] }[] = [
   {
-    group: { en: "Infrastructure", mn: "Дэд бүтэц" },
-    items: ["Dell PowerEdge R740 / R750", "NVR / CCTV", "Windows Server", "Ubuntu / Linux", "VMware ESXi", "Check Point", "Grandstream GWN.Cloud", "VPN · NAT · Routing", "TCP/IP · DNS · DHCP", "nginx", "UFW · TLS"],
+    group: { en: "Systems & Virtualization", mn: "Систем ба виртуалчлал" },
+    items: ["Windows / Windows Server", "Ubuntu Linux", "VMware ESXi", "Dell PowerEdge R740 / R750", "SSD / HDD replacement", "NVR / CCTV"],
   },
   {
-    group: { en: "ERP & Backend", mn: "ERP ба Backend" },
-    items: ["Odoo 13 → 19", "Python", "PostgreSQL", "REST APIs", "Node.js", "Prisma", "Git / GitLab"],
+    group: { en: "Networking & Security", mn: "Сүлжээ ба аюулгүй байдал" },
+    items: ["Check Point", "VPN · NAT · Routing", "TCP/IP · DNS · DHCP", "Grandstream GWN.Cloud", "nginx", "UFW · TLS"],
   },
   {
-    group: { en: "Frontend & Cloud", mn: "Frontend ба Cloud" },
-    items: ["React", "Next.js", "TypeScript", "Vite", "Electron", "Expo", "Cloudflare Workers", "Vercel"],
+    group: { en: "ERP & Data", mn: "ERP ба өгөгдөл" },
+    items: ["Odoo 13 → 19", "Python", "PostgreSQL", "REST APIs", "Git / GitLab"],
+  },
+  {
+    group: { en: "Web & Tooling", mn: "Вэб ба хэрэгсэл" },
+    items: ["React", "Next.js", "TypeScript", "Vite", "Node.js", "Prisma", "Electron", "Expo", "Cloudflare Workers", "Vercel"],
   },
 ];
 
