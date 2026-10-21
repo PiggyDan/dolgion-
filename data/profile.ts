@@ -7,7 +7,7 @@ export type Text = Record<Lang, string>;
 export const profile = {
   name: "Dolgion",
   fullName: "O. Dolgion",
-  email: "itdolgion@gmail.com",
+  email: "odolgion222@gmail.com",
   phone: "+976 8909 0126",
   github: "https://github.com/PiggyDan",
   linkedin: "",
