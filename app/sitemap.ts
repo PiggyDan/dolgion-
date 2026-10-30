@@ -1,6 +1,9 @@
 import type { MetadataRoute } from "next";
-import { profile } from "@/data/profile";
+import { caseStudies, profile } from "@/data/profile";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [{ url: profile.site, changeFrequency: "monthly", priority: 1 }];
+  return [
+    { url: profile.site, changeFrequency: "monthly", priority: 1 },
+    ...caseStudies.map((s) => ({ url: `${profile.site}/work/${s.slug}`, changeFrequency: "monthly" as const, priority: 0.8 })),
+  ];
 }

@@ -1,70 +1,68 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono, Manrope } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
+import { Footer, Header } from "@/components/SiteChrome";
 import { employer, profile } from "@/data/profile";
 import "./globals.css";
 
-const display = Manrope({ subsets: ["latin", "cyrillic", "cyrillic-ext"], variable: "--font-display", weight: ["500", "700", "800"] });
-const body = Inter({ subsets: ["latin", "cyrillic", "cyrillic-ext"], variable: "--font-body" });
-const mono = JetBrains_Mono({ subsets: ["latin", "cyrillic-ext"], variable: "--font-mono" });
+const sans = Geist({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
-const title = "O. Dolgion — IT Infrastructure & Systems Engineer";
+const title = `${profile.name}: Systems Engineer`;
 const description =
-  "IT Infrastructure & Systems Engineer in Mongolia: Windows & Linux administration, networking, VMware virtualization and ERP operations. Currently leading an Odoo 13 → Odoo 19 Community migration. Open to international roles.";
+  "Systems engineer in Ulaanbaatar, Mongolia: VMware ESXi, Windows Server, Linux, Check Point networking, an in-progress Odoo 13 → 19 migration, and ITCore, a help desk SaaS I built. Open to international remote work and relocation.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(profile.site),
-  title,
+  title: { default: title, template: `%s · ${profile.name}` },
   description,
   alternates: { canonical: "/" },
+  authors: [{ name: profile.name, url: profile.site }],
+  creator: profile.name,
   keywords: [
-    "Dolgion",
-    "IT Infrastructure Engineer",
     "Systems Engineer",
-    "Systems Administrator",
-    "Linux Systems Administrator",
-    "IT Support Engineer",
-    "ERP Technical Support",
-    "Odoo 19 migration",
+    "Infrastructure Engineer",
+    "IT Operations",
+    "DevOps",
     "VMware ESXi",
+    "Windows Server",
+    "Linux",
+    "Check Point",
+    "Odoo 19 migration",
+    "Remote",
+    "Relocation",
     "Mongolia",
   ],
-  authors: [{ name: profile.fullName, url: profile.site }],
-  openGraph: {
-    title,
-    description,
-    url: "/",
-    type: "profile",
-    locale: "en_US",
-    alternateLocale: ["mn_MN"],
-    images: [{ url: "/dolgion-hero.png", alt: "Portrait of O. Dolgion" }],
-  },
-  twitter: { card: "summary_large_image", title, description, images: ["/dolgion-hero.png"] },
+  openGraph: { title, description, url: "/", siteName: profile.name, type: "profile", locale: "en_US" },
+  twitter: { card: "summary_large_image", title, description },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#06080d",
+  themeColor: "#0d1320",
+  colorScheme: "dark",
 };
 
 const personJsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
-  name: profile.fullName,
-  jobTitle: profile.headline.en,
+  name: profile.name,
+  jobTitle: "Systems Engineer",
   url: profile.site,
   email: `mailto:${profile.email}`,
-  image: `${profile.site}/dolgion-hero.png`,
+  image: `${profile.site}/dolgion-avatar.webp`,
   address: { "@type": "PostalAddress", addressLocality: "Ulaanbaatar", addressCountry: "MN" },
   worksFor: { "@type": "Organization", name: employer.name, url: employer.site },
-  knowsAbout: ["Windows Server", "Linux", "Networking", "VMware ESXi", "PostgreSQL", "Odoo ERP", "Python"],
-  sameAs: [profile.github],
+  knowsAbout: ["VMware ESXi", "Windows Server", "Linux", "Check Point", "Networking", "PostgreSQL", "Odoo", "Python", "TypeScript"],
+  sameAs: [profile.linkedin, profile.github],
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
-        {children}
+        <Header />
+        <main id="main">{children}</main>
+        <Footer />
       </body>
     </html>
   );

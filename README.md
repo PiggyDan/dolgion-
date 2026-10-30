@@ -1,57 +1,36 @@
-# Dolgion Portfolio
+# Dolgion Oldokh: Portfolio
 
-A production-style Next.js portfolio for System Engineering, DevOps, infrastructure, ERP integration and full-stack work.
+Next.js (App Router) portfolio for systems, infrastructure and IT operations roles. Every page is statically prerendered.
 
 ## Run locally
 
 ```bash
 npm install
-npm run dev
+npm run dev      # http://localhost:3000
+npm run build    # production build
 ```
 
-Open `http://localhost:3000`.
+## Where things live
 
-## Personalize
+| What | File |
+| --- | --- |
+| All content (hero, case studies, experience, skills, about) | `data/profile.ts` |
+| Home page | `app/page.tsx` |
+| Case study pages (`/work/<slug>`) | `app/work/[slug]/page.tsx` |
+| Header / footer | `components/SiteChrome.tsx` |
+| Styles and design tokens | `app/globals.css` |
+| Social preview images | `app/opengraph-image.tsx`, `app/work/[slug]/opengraph-image.tsx` |
 
-Edit:
+## Adding screenshots to a case study
 
-```text
-data/profile.ts
-```
+Put a sanitised PNG in `public/images/` using the file name already listed in that case study's
+`screenshots` array (e.g. `images/odoo13.png`, `images/itcore-tickets.png`). Files that don't exist
+are skipped at build time, so nothing broken is ever shown.
 
-Change your:
-- LinkedIn URL
-- education
-- job dates
-- summaries
-- projects
-- GitHub
-- email
+Before adding a screenshot, crop or blur: IP addresses, hostnames, URLs of internal systems,
+usernames, emails, customer names, credentials and anything showing real network topology.
 
-The hero portrait is:
+## Content rules
 
-```text
-public/dolgion-hero.png
-```
-
-## Resume
-
-Put your PDF at:
-
-```text
-public/resume.pdf
-```
-
-## Build
-
-```bash
-npm run build
-```
-
-## Deploy
-
-Push to GitHub and import the repository into Netlify or Vercel.
-
-## Important
-
-Do not publish company passwords, internal IP addresses, credentials, private source code, VPN information or proprietary data.
+No invented metrics, dates, certifications or endorsements. The Odoo migration is in progress:
+never describe it as completed or as live in production.
