@@ -494,7 +494,6 @@ export const otherWork: { name: string; kind: string; text: string; stack: strin
     stack: ["Next.js", "Upstash Redis", "Vercel"],
     links: [
       { href: "https://paulshome-pi.vercel.app", label: "Live site" },
-      { href: "https://github.com/PiggyDan/paulshome", label: "Source" },
     ],
   },
   {
@@ -504,7 +503,6 @@ export const otherWork: { name: string; kind: string; text: string; stack: strin
     stack: ["React", "Expo", "React Native"],
     links: [
       { href: "https://jkmechanic.vercel.app", label: "Live site" },
-      { href: "https://github.com/PiggyDan/jkmechanic", label: "Source" },
     ],
   },
   {
