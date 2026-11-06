@@ -460,10 +460,14 @@ export const caseStudies: CaseStudy[] = [
     outcomes: [
       "Servers, network and CCTV kept running through hardware failures by replacing disks and rebuilding systems.",
       "Built gkllc.mn, the company website whose job listings come straight from the ERP, with CV uploads that land in Odoo HR.",
+      "Built the bilingual (MN / EN) website for Saker Resources Mongolia, the group's Khotgor coal mining company.",
     ],
     outcomesNote:
       "This is internal infrastructure. I don't publish uptime, incident or cost figures, because I can't share the data behind them.",
-    links: [{ href: "https://www.gkllc.mn", label: "gkllc.mn: company website (ERP-connected job listings)" }],
+    links: [
+      { href: "https://www.gkllc.mn", label: "gkllc.mn: company website (ERP-connected job listings)" },
+      { href: "https://saker-resources.vercel.app/mn", label: "Saker Resources Mongolia: company website" },
+    ],
     screenshots: [],
   },
 ];
@@ -486,6 +490,13 @@ export const otherWork: { name: string; kind: string; text: string; stack: strin
     text: "Company site whose job listings are published straight from the ERP. Applicants' CVs land in Odoo HR through a custom jobs API.",
     stack: ["React", "Vite", "Odoo API"],
     links: [{ href: "https://www.gkllc.mn", label: "gkllc.mn" }],
+  },
+  {
+    name: "Saker Resources Mongolia",
+    kind: "Corporate website",
+    text: "Bilingual (MN / EN) site for the group's Khotgor coal mining company: the integrated mine, road and power project, sustainability, procurement, careers and contacts.",
+    stack: ["Next.js", "Vercel", "MN / EN"],
+    links: [{ href: "https://saker-resources.vercel.app/mn", label: "Live site" }],
   },
   {
     name: "Paul's Home Repair",
@@ -529,7 +540,7 @@ export const experience = [
       "Run Dell PowerEdge R740 / R750 servers on VMware ESXi: disk replacement, OS reinstalls, host health.",
       "Manage Check Point firewall and Remote Access VPN, NAT, routing, Grandstream GWN.Cloud Wi-Fi, IP telephony and NVR camera systems.",
       "Leading the in-progress migration of the group ERP from Odoo 13 to Odoo 19 Community.",
-      "Built gkllc.mn with ERP-connected job listings, plus internal tools that replace paper processes.",
+      "Built gkllc.mn with ERP-connected job listings and the Saker Resources Mongolia website, plus internal tools that replace paper processes.",
     ],
   },
   {
