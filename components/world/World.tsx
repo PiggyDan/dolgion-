@@ -1,19 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Download, Moon, Sun, X } from "lucide-react";
-import { hero, profile } from "@/data/profile";
+import { Download, Mail, Moon, Route, Server, SquareTerminal, Sun, UserRound, X } from "lucide-react";
+import { profile } from "@/data/profile";
+import { LangContext, dataFor, type Lang } from "./i18n";
 import { AboutPanel, ContactPanel, ExperiencePanel, SkillsPanel, WorkPanel, type Shots } from "./Panels";
 import { BG, EXTENT, PLACES, drawLive, makeLive, paintStatic, placeById, setTheme, step, vignetteRGB, type Live, type PlaceId, type Theme } from "./scene";
 
-const TITLES: Record<PlaceId, { eyebrow: string; title: string }> = {
-  work: { eyebrow: "rack · esxi-01..03", title: "Work" },
-  experience: { eyebrow: "traceroute career", title: "Experience" },
-  skills: { eyebrow: "ops@noc:~", title: "Skills" },
-  about: { eyebrow: "ws-dolgion · whoami", title: "About me" },
-  contact: { eyebrow: "wan · internet uplink", title: "Contact" },
+const EYEBROWS: Record<PlaceId, string> = {
+  work: "rack · esxi-01..03",
+  experience: "traceroute career",
+  skills: "ops@noc:~",
+  about: "ws-dolgion · whoami",
+  contact: "wan · internet uplink",
 };
 const ORDER: PlaceId[] = ["work", "experience", "skills", "about", "contact"];
+const ICONS = { work: Server, experience: Route, skills: SquareTerminal, about: UserRound, contact: Mail };
 const DWELL = 0.75; // seconds the cursor rests on a node before it opens
 
 export default function World({ shots }: { shots: Shots }) {
@@ -22,12 +24,40 @@ export default function World({ shots }: { shots: Shots }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const introRef = useRef<HTMLElement>(null);
+  const drag = useRef<{ y: number; dy: number } | null>(null);
   const liveRef = useRef<Live | null>(null);
   const tagHover = useRef<PlaceId | null>(null);
   const suppress = useRef<PlaceId | null>(null); // a node just closed: don't reopen until the cursor leaves it
   const [active, setActive] = useState<PlaceId | null>(null);
   const [clock, setClock] = useState("");
   const [theme, setThemeState] = useState<Theme>("dark");
+  const [lang, setLang] = useState<Lang>("en");
+  const D = dataFor(lang);
+  const T = D.t;
+
+  // language: ?lang=, saved choice, else the browser language
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("lang");
+    let saved: string | null = null;
+    try {
+      saved = localStorage.getItem("lang");
+    } catch {}
+    const l = q === "mn" || q === "en" ? q : saved === "mn" || saved === "en" ? saved : navigator.language.toLowerCase().startsWith("mn") ? "mn" : "en";
+    setLang(l);
+  }, []);
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+  const toggleLang = () => {
+    const l: Lang = lang === "en" ? "mn" : "en";
+    setLang(l);
+    try {
+      localStorage.setItem("lang", l);
+      const url = new URL(window.location.href);
+      url.searchParams.delete("lang");
+      window.history.replaceState(null, "", url);
+    } catch {}
+  };
   const themeRef = useRef<{ t: Theme; rebuild?: () => void }>({ t: "dark" });
 
   // theme: saved choice, else the system setting
@@ -174,7 +204,7 @@ export default function World({ shots }: { shots: Shots }) {
         const z = baseZ * (portrait ? 1.5 : 1.65);
         const panelW = Math.min(460, cw * 0.42);
         const sx = portrait ? cw / 2 : (cw - panelW - 40) / 2;
-        const sy = portrait ? ch * 0.15 : ch * 0.5;
+        const sy = portrait ? ch * 0.1 : ch * 0.5;
         return { x: p.hx - (sx - cw / 2) / z, y: p.hy - (sy - ch / 2) / z, z };
       }
       const halfW = cw / (2 * baseZ);
@@ -182,7 +212,7 @@ export default function World({ shots }: { shots: Shots }) {
       const maxX = Math.max(cx, 1400 - halfW + 60);
       pan.x = Math.max(minX - cx, Math.min(maxX - cx, pan.x));
       let x = cx + pan.x;
-      let y = portrait ? 930 - ch / (2 * baseZ) : cy;
+      let y = portrait ? 1100 - ch / (2 * baseZ) : cy;
       let z = baseZ;
       // the cursor leans the view a little
       if (fine && mouse.inside) {
@@ -385,7 +415,11 @@ export default function World({ shots }: { shots: Shots }) {
         <span className="w-clock" title="Local time in Ulaanbaatar">
           <i className="w-live" aria-hidden="true" /> UB {clock}
         </span>
-        <button className="w-pill w-pill-icon" onClick={toggleTheme} aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} title={theme === "dark" ? "Light mode" : "Dark mode"}>
+        <button className="w-pill w-lang" onClick={toggleLang} aria-label={T.langLabel} title={T.langLabel}>
+          <span className={lang === "en" ? "on" : ""}>EN</span>
+          <span className={lang === "mn" ? "on" : ""}>МН</span>
+        </button>
+        <button className="w-pill w-pill-icon" onClick={toggleTheme} aria-label={theme === "dark" ? T.toLight : T.toDark} title={theme === "dark" ? T.toLight : T.toDark}>
           {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
         </button>
         <a className="w-pill w-pill-ink" href={profile.cv.href} target="_blank" rel="noopener">
@@ -395,16 +429,16 @@ export default function World({ shots }: { shots: Shots }) {
 
       <section ref={introRef} className={`w-intro${active ? " hide" : ""}`} aria-hidden={!!active}>
         <p className="w-eyebrow">
-          <span className="w-prompt">$</span> systems engineer · {profile.location}
+          <span className="w-prompt">$</span> {T.role} · {D.me.location}
         </p>
-        <h2 className="w-intro-t">{hero.title}</h2>
-        <p className="w-intro-l">{hero.lead}</p>
+        <h2 className="w-intro-t">{D.hero.title}</h2>
+        <p className="w-intro-l">{D.hero.lead}</p>
         <div className="w-intro-cta">
           <button className="w-btn" onClick={() => open("work")} tabIndex={active ? -1 : 0}>
-            See my work
+            {T.seeWork}
           </button>
           <button className="w-btn w-btn-ghost" onClick={() => open("contact")} tabIndex={active ? -1 : 0}>
-            Get in touch
+            {T.touch}
           </button>
         </div>
       </section>
@@ -419,43 +453,70 @@ export default function World({ shots }: { shots: Shots }) {
           onClick={() => open(active === p.id ? null : p.id)}
           onPointerEnter={(e) => e.pointerType === "mouse" && (tagHover.current = p.id)}
           onPointerLeave={() => (tagHover.current = null)}
-          aria-label={`${p.label}: ${p.sub}`}
+          aria-label={`${T.place[p.id]}: ${p.sub}`}
         >
           <span className="w-tag-n">{ORDER.indexOf(p.id) + 1}</span>
-          {p.label}
+          {T.place[p.id]}
           <span className="w-tag-bar" aria-hidden="true" />
         </button>
       ))}
 
       <p className={`w-hint${touched || active ? " gone" : ""}`} aria-hidden="true">
-        <span className="w-hint-fine">Hover a node to zoom in · click to open</span>
-        <span className="w-hint-touch">Tap a node · drag to look around</span>
+        <span className="w-hint-fine">{T.hintFine}</span>
+        <span className="w-hint-touch">{T.hintTouch}</span>
       </p>
 
       <nav className="w-dock" aria-label="Sections">
         {ORDER.map((id) => (
           <button key={id} aria-pressed={active === id} onClick={() => open(active === id ? null : id)}>
-            {placeById(id).label}
+            {(() => {
+              const I = ICONS[id];
+              return <I className="w-dock-i" size={20} aria-hidden="true" />;
+            })()}
+            <span>{T.place[id]}</span>
           </button>
         ))}
       </nav>
 
       {active && (
-        <div className="w-panel" role="dialog" aria-modal="false" aria-labelledby="w-panel-title" ref={panelRef} tabIndex={-1} key={active}>
+        <div className="w-panel" role="dialog" aria-modal="false" aria-labelledby="w-panel-title" ref={panelRef} tabIndex={-1} key={active + lang}>
+          <div
+            className="w-grab"
+            aria-hidden="true"
+            onTouchStart={(e) => (drag.current = { y: e.touches[0].clientY, dy: 0 })}
+            onTouchMove={(e) => {
+              const d = drag.current;
+              if (!d || !panelRef.current) return;
+              d.dy = Math.max(0, e.touches[0].clientY - d.y);
+              panelRef.current.style.transform = `translateY(${d.dy}px)`;
+              panelRef.current.style.transition = "none";
+            }}
+            onTouchEnd={() => {
+              const d = drag.current;
+              drag.current = null;
+              if (!panelRef.current) return;
+              panelRef.current.style.transition = "";
+              panelRef.current.style.transform = "";
+              if (d && d.dy > 90) open(null);
+            }}
+          >
+            <i />
+          </div>
           <header className="w-panel-head">
             <div>
               <p className="w-eyebrow">
                 <span className="w-prompt">~/</span>
-                {TITLES[active].eyebrow}
+                {EYEBROWS[active]}
               </p>
               <h2 id="w-panel-title" className="w-panel-title">
-                {TITLES[active].title}
+                {T.title[active]}
               </h2>
             </div>
-            <button className="w-icon w-close" onClick={() => open(null)} aria-label="Close">
+            <button className="w-icon w-close" onClick={() => open(null)} aria-label={T.close}>
               <X size={18} />
             </button>
           </header>
+          <LangContext.Provider value={lang}>
           <div className="w-panel-body" ref={bodyRef}>
             {active === "work" && <WorkPanel shots={shots} />}
             {active === "experience" && <ExperiencePanel />}
@@ -463,12 +524,13 @@ export default function World({ shots }: { shots: Shots }) {
             {active === "about" && <AboutPanel />}
             {active === "contact" && <ContactPanel />}
           </div>
+          </LangContext.Provider>
           <footer className="w-panel-foot">
             <button className="w-next" onClick={() => open(ORDER[(idx - 1 + ORDER.length) % ORDER.length])}>
-              ← {placeById(ORDER[(idx - 1 + ORDER.length) % ORDER.length]).label}
+              ← {T.place[ORDER[(idx - 1 + ORDER.length) % ORDER.length]]}
             </button>
             <button className="w-next" onClick={() => open(ORDER[(idx + 1) % ORDER.length])}>
-              {placeById(ORDER[(idx + 1) % ORDER.length]).label} →
+              {T.place[ORDER[(idx + 1) % ORDER.length]]} →
             </button>
           </footer>
         </div>

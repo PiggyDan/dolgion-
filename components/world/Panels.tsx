@@ -4,19 +4,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Download, Facebook, Github, Linkedin, Mail, MapPin, Phone } from "lucide-react";
-import { about, caseStudies, experience, otherWork, profile, skills, type CaseStudy, type Tone } from "@/data/profile";
+import { profile, type CaseStudy, type Tone } from "@/data/profile";
+import { useData, type Data } from "./i18n";
 import type { Shot } from "@/lib/shots";
 
 export type Shots = Record<string, Shot[]>;
 
 /* ---------- small pieces ---------- */
 
-function Tabs<T extends string>({ items, value, onChange, label }: { items: T[]; value: T; onChange: (v: T) => void; label: string }) {
+function Tabs<T extends string>({ items, value, onChange, label, show }: { items: T[]; value: T; onChange: (v: T) => void; label: string; show?: (v: T) => string }) {
   return (
     <div className="w-tabs" role="tablist" aria-label={label}>
       {items.map((it) => (
         <button key={it} role="tab" aria-selected={it === value} className="w-tab" onClick={() => onChange(it)}>
-          {it}
+          {show ? show(it) : it}
         </button>
       ))}
     </div>
@@ -108,13 +109,14 @@ const Ext = ({ href, children }: { href: string; children: ReactNode }) => (
 type CaseTab = "Overview" | "Facts" | "Architecture" | "Decisions" | "Challenges" | "Status" | "Results" | "Screens";
 
 export function WorkPanel({ shots }: { shots: Shots }) {
+  const { t: T, caseStudies, otherWork } = useData();
   const [view, setView] = useState<{ kind: "list" } | { kind: "case"; i: number } | { kind: "other" }>({ kind: "list" });
   const [tab, setTab] = useState<CaseTab>("Overview");
 
   if (view.kind === "list")
     return (
       <div className="w-stack">
-        <p className="w-lead">Four case studies from my current work. Pick one.</p>
+        <p className="w-lead">{T.workLead}</p>
         <ul className="w-cases">
           {caseStudies.map((s, i) => (
             <li key={s.slug}>
@@ -140,8 +142,8 @@ export function WorkPanel({ shots }: { shots: Shots }) {
             <button className="w-case w-case-other" onClick={() => setView({ kind: "other" })}>
               <span className="w-case-i">+</span>
               <span className="w-case-main">
-                <span className="w-case-t">Other work</span>
-                <span className="w-case-k">{otherWork.length} client sites, internal tools and apps</span>
+                <span className="w-case-t">{T.otherWork}</span>
+                <span className="w-case-k">{T.otherCount(otherWork.length)}</span>
               </span>
               <ArrowRight size={16} className="w-case-go" aria-hidden="true" />
             </button>
@@ -152,7 +154,7 @@ export function WorkPanel({ shots }: { shots: Shots }) {
 
   const back = (
     <button className="w-back" onClick={() => setView({ kind: "list" })}>
-      <ArrowLeft size={14} /> All work
+      <ArrowLeft size={14} /> {T.allWork}
     </button>
   );
 
@@ -207,7 +209,7 @@ export function WorkPanel({ shots }: { shots: Shots }) {
       </div>
       <p className="w-eyebrow">{s.kicker}</p>
       <h3 className="w-h3">{s.title}</h3>
-      <Tabs label="Case study sections" items={tabs} value={tabs.includes(tab) ? tab : "Overview"} onChange={setTab} />
+      <Tabs label="Case study sections" items={tabs} value={tabs.includes(tab) ? tab : "Overview"} onChange={setTab} show={(v) => T.tabs[v]} />
       <div className="w-tabbody" key={`${s.slug}-${tab}`}>
         {tab === "Overview" && (
           <div className="w-stack">
@@ -217,11 +219,11 @@ export function WorkPanel({ shots }: { shots: Shots }) {
             <p>{s.summary}</p>
             <dl className="w-meta">
               <div>
-                <dt>Role</dt>
+                <dt>{T.roleL}</dt>
                 <dd>{s.role}</dd>
               </div>
               <div>
-                <dt>Period</dt>
+                <dt>{T.periodL}</dt>
                 <dd>{s.period}</dd>
               </div>
             </dl>
@@ -271,7 +273,7 @@ export function WorkPanel({ shots }: { shots: Shots }) {
                 </Ext>
               ))}
               <Link className="w-link" href={`/work/${s.slug}`}>
-                Full write-up <ArrowRight size={13} aria-hidden="true" />
+                {T.fullWriteUp} <ArrowRight size={13} aria-hidden="true" />
               </Link>
             </div>
           </div>
@@ -295,6 +297,7 @@ export function WorkPanel({ shots }: { shots: Shots }) {
 
 function Facts({ facts, stack }: { facts: NonNullable<CaseStudy["facts"]>; stack: string[] }) {
   const compact = useCompact();
+  const { t: T } = useData();
   const grid = (
     <ul className="w-facts">
       {facts.map((f) => (
@@ -307,7 +310,7 @@ function Facts({ facts, stack }: { facts: NonNullable<CaseStudy["facts"]>; stack
   );
   const tech = (
     <div className="w-stack">
-      <p className="w-eyebrow">Stack</p>
+      <p className="w-eyebrow">{T.stack}</p>
       <Chips items={stack} />
     </div>
   );
@@ -349,11 +352,12 @@ function Status({ groups }: { groups: CaseStudy["progress"] }) {
 /* ---------- Experience ---------- */
 
 export function ExperiencePanel() {
+  const { t: T, experience } = useData();
   const [i, setI] = useState(0);
   const e = experience[i];
   return (
     <div className="w-stack">
-      <p className="w-lead">Each hop on the route is a role. Newest first.</p>
+      <p className="w-lead">{T.expLead}</p>
       <ol className="w-timeline" role="tablist" aria-label="Roles">
         {experience.map((x, k) => (
           <li key={x.company}>
@@ -382,7 +386,7 @@ export function ExperiencePanel() {
 
 const SHORT = ["Infra", "Network", "ERP", "Software", "Ops"];
 
-function findGroup(arg: string) {
+function findGroup(arg: string, { skills }: Data) {
   const a = arg.trim().toLowerCase().replace(/^["']|["']$/g, "");
   if (!a) return -1;
   const n = Number(a);
@@ -392,7 +396,7 @@ function findGroup(arg: string) {
 
 type Out = { cmd: string; out: ReactNode };
 
-function groupOut(i: number): ReactNode {
+function groupOut(i: number, { skills }: Data): ReactNode {
   const g = skills[i];
   return (
     <>
@@ -413,7 +417,7 @@ function groupOut(i: number): ReactNode {
   );
 }
 
-function listOut(): ReactNode {
+function listOut({ skills }: Data): ReactNode {
   return (
     <>
       <div className="ps-dim">    Directory: C:\Users\Dolgion\Skills</div>
@@ -437,15 +441,10 @@ function listOut(): ReactNode {
   );
 }
 
-function helpOut(): ReactNode {
+function helpOut({ t: T }: Data): ReactNode {
   return (
     <div className="ps-table ps-table-2">
-      {[
-        ["Get-Skills", "list skill groups (also: dir, ls)"],
-        ["Get-Skills -Group <name|#>", "show one group"],
-        ["whoami", "who runs this box"],
-        ["cls", "clear the screen"],
-      ].map(([c, d]) => (
+      {T.psHelp.map(([c, d]) => (
         <Fragment key={c}>
           <span className="ps-cmd">{c}</span>
           <span className="ps-dim">{d}</span>
@@ -455,19 +454,19 @@ function helpOut(): ReactNode {
   );
 }
 
-function run(raw: string): Out | null {
+function run(raw: string, D: Data): Out | null {
   const cmd = raw.trim();
   const lc = cmd.toLowerCase();
   if (!cmd) return { cmd: "", out: null };
   if (lc === "cls" || lc === "clear" || lc === "clear-host") return null;
-  if (lc === "help" || lc === "get-help" || lc === "?") return { cmd, out: helpOut() };
-  if (lc === "whoami") return { cmd, out: <div>{`gk\\dolgion  ·  ${profile.positioning[0]}, ${profile.location}`}</div> };
-  if (["dir", "ls", "get-childitem", "gci", "get-skills"].includes(lc)) return { cmd, out: listOut() };
+  if (lc === "help" || lc === "get-help" || lc === "?") return { cmd, out: helpOut(D) };
+  if (lc === "whoami") return { cmd, out: <div>{`gk\\dolgion  ·  ${D.me.positioning[0]}, ${D.me.location}`}</div> };
+  if (["dir", "ls", "get-childitem", "gci", "get-skills"].includes(lc)) return { cmd, out: listOut(D) };
   const m = lc.match(/^(?:get-skills|gs)\s+(?:-group\s+)?(.+)$/) ?? lc.match(/^(?:cd|cat|type)\s+(.+)$/);
   if (m) {
-    const i = findGroup(m[1]);
-    if (i >= 0) return { cmd, out: groupOut(i) };
-    return { cmd, out: <div className="ps-err">{`Get-Skills : No group matches '${m[1]}'. Try: ${SHORT.join(", ")}`}</div> };
+    const i = findGroup(m[1], D);
+    if (i >= 0) return { cmd, out: groupOut(i, D) };
+    return { cmd, out: <div className="ps-err">{`Get-Skills : ${D.t.psNoGroup} '${m[1]}'. Try: ${SHORT.join(", ")}`}</div> };
   }
   const word = cmd.split(/\s+/)[0];
   return {
@@ -476,14 +475,15 @@ function run(raw: string): Out | null {
       <div className="ps-err">
         {`${word} : The term '${word}' is not recognized as the name of a cmdlet, function, script file, or operable program.`}
         <br />
-        {"Try 'help'."}
+        {D.t.psTry}
       </div>
     ),
   };
 }
 
 export function SkillsPanel() {
-  const [entries, setEntries] = useState<Out[]>(() => [{ cmd: "Get-Skills -Group Infra", out: groupOut(0) }]);
+  const D = useData();
+  const [entries, setEntries] = useState<Out[]>(() => [{ cmd: "Get-Skills -Group Infra", out: groupOut(0, D) }]);
   const [input, setInput] = useState("");
   const [hist, setHist] = useState<string[]>([]);
   const [hi, setHi] = useState(-1);
@@ -494,7 +494,7 @@ export function SkillsPanel() {
   }, []);
 
   const exec = (c: string) => {
-    const r = run(c);
+    const r = run(c, D);
     // keep only the latest command on screen: the console never scrolls
     setEntries(r ? [r] : []);
     if (c.trim()) setHist((h) => [c, ...h].slice(0, 30));
@@ -504,7 +504,7 @@ export function SkillsPanel() {
 
   return (
     <div className="w-stack">
-      <p className="w-lead">Type a command, or click one below. Try <code>help</code>.</p>
+      <p className="w-lead">{D.t.skillsLead} <code>help</code></p>
       <div className="ps-win" onClick={() => inputRef.current?.focus({ preventScroll: true })}>
         <div className="ps-title">
           <span className="ps-icon" aria-hidden="true">
@@ -584,13 +584,14 @@ export function SkillsPanel() {
 /* ---------- About ---------- */
 
 export function AboutPanel() {
+  const { about, me } = useData();
   return (
     <div className="w-stack">
       <div className="w-me">
-        <Image src="/dolgion-avatar.webp" alt={profile.name} width={64} height={64} />
+        <Image src="/dolgion-avatar.webp" alt={me.name} width={64} height={64} />
         <div>
-          <h3 className="w-h3">{profile.name}</h3>
-          <p className="w-sub">{profile.positioning.join(" · ")}</p>
+          <h3 className="w-h3">{me.name}</h3>
+          <p className="w-sub">{me.positioning.join(" · ")}</p>
         </div>
       </div>
       <div className="w-story">
@@ -649,10 +650,11 @@ const SOCIALS: { label: string; href: string; icon: ReactNode; color: string; ex
 ];
 
 export function ContactPanel() {
+  const { me } = useData();
   return (
     <div className="w-stack">
       <p className="w-status">
-        <Dot tone="live" /> {profile.availability}
+        <Dot tone="live" /> {me.availability}
       </p>
       <ul className="w-socials">
         {SOCIALS.map((s) => (
@@ -670,7 +672,7 @@ export function ContactPanel() {
         ))}
       </ul>
       <p className="w-note">
-        <MapPin size={13} aria-hidden="true" style={{ verticalAlign: -2 }} /> {profile.location}
+        <MapPin size={13} aria-hidden="true" style={{ verticalAlign: -2 }} /> {me.location}
       </p>
       <div className="w-cv">
         <a className="w-btn" href={profile.cv.href} target="_blank" rel="noopener">
