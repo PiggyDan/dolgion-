@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronLeft, ChevronRight, Download, Facebook, Github, Linkedin, Mail, MapPin, Phone } from "lucide-react";
 import { about, caseStudies, experience, otherWork, profile, skills, type CaseStudy, type Tone } from "@/data/profile";
 import type { Shot } from "@/lib/shots";
@@ -378,31 +378,204 @@ export function ExperiencePanel() {
   );
 }
 
-/* ---------- Skills ---------- */
+/* ---------- Skills: a small PowerShell console ---------- */
 
-export function SkillsPanel() {
-  const [i, setI] = useState(0);
+const SHORT = ["Infra", "Network", "ERP", "Software", "Ops"];
+
+function findGroup(arg: string) {
+  const a = arg.trim().toLowerCase().replace(/^["']|["']$/g, "");
+  if (!a) return -1;
+  const n = Number(a);
+  if (n >= 1 && n <= skills.length) return n - 1;
+  return skills.findIndex((s, i) => SHORT[i].toLowerCase().startsWith(a) || s.group.toLowerCase().includes(a));
+}
+
+type Out = { cmd: string; out: ReactNode };
+
+function groupOut(i: number): ReactNode {
   const g = skills[i];
   return (
-    <div className="w-stack">
-      <p className="w-lead">Everything here comes from production work or my own projects.</p>
-      <div className="w-groups" role="tablist" aria-label="Skill groups">
-        {skills.map((s, k) => (
-          <button key={s.group} role="tab" aria-selected={k === i} className="w-group" onClick={() => setI(k)}>
-            <span className="w-group-n">0{k + 1}</span>
-            {s.group}
-          </button>
+    <>
+      <div className="ps-kv">
+        <span>Group</span>: {g.group}
+      </div>
+      <div className="ps-kv">
+        <span>Context</span>: {g.context}
+      </div>
+      <div className="ps-head">Name</div>
+      <div className="ps-rule">----</div>
+      <ul className="ps-items">
+        {g.items.map((it) => (
+          <li key={it}>{it}</li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+function listOut(): ReactNode {
+  return (
+    <>
+      <div className="ps-dim">    Directory: C:\Users\Dolgion\Skills</div>
+      <div className="ps-table">
+        <span className="ps-head">#</span>
+        <span className="ps-head">Count</span>
+        <span className="ps-head">Name</span>
+        <span className="ps-rule">-</span>
+        <span className="ps-rule">-----</span>
+        <span className="ps-rule">----</span>
+        {skills.map((s, i) => (
+          <Fragment key={s.group}>
+            <span>{i + 1}</span>
+            <span>{s.items.length}</span>
+            <span>{s.group}</span>
+          </Fragment>
         ))}
       </div>
-      <div className="w-stack w-tabbody" key={i}>
-        <p className="w-status">
-          <Dot tone="live" /> {g.context}
-        </p>
-        <ul className="w-chips w-chips-lg">
-          {g.items.map((s) => (
-            <li key={s}>{s}</li>
+      <div className="ps-dim">Tip: Get-Skills -Group Network</div>
+    </>
+  );
+}
+
+function helpOut(): ReactNode {
+  return (
+    <div className="ps-table ps-table-2">
+      {[
+        ["Get-Skills", "list skill groups (also: dir, ls)"],
+        ["Get-Skills -Group <name|#>", "show one group"],
+        ["whoami", "who runs this box"],
+        ["cls", "clear the screen"],
+      ].map(([c, d]) => (
+        <Fragment key={c}>
+          <span className="ps-cmd">{c}</span>
+          <span className="ps-dim">{d}</span>
+        </Fragment>
+      ))}
+    </div>
+  );
+}
+
+function run(raw: string): Out | null {
+  const cmd = raw.trim();
+  const lc = cmd.toLowerCase();
+  if (!cmd) return { cmd: "", out: null };
+  if (lc === "cls" || lc === "clear" || lc === "clear-host") return null;
+  if (lc === "help" || lc === "get-help" || lc === "?") return { cmd, out: helpOut() };
+  if (lc === "whoami") return { cmd, out: <div>{`gk\\dolgion  ·  ${profile.positioning[0]}, ${profile.location}`}</div> };
+  if (["dir", "ls", "get-childitem", "gci", "get-skills"].includes(lc)) return { cmd, out: listOut() };
+  const m = lc.match(/^(?:get-skills|gs)\s+(?:-group\s+)?(.+)$/) ?? lc.match(/^(?:cd|cat|type)\s+(.+)$/);
+  if (m) {
+    const i = findGroup(m[1]);
+    if (i >= 0) return { cmd, out: groupOut(i) };
+    return { cmd, out: <div className="ps-err">{`Get-Skills : No group matches '${m[1]}'. Try: ${SHORT.join(", ")}`}</div> };
+  }
+  const word = cmd.split(/\s+/)[0];
+  return {
+    cmd,
+    out: (
+      <div className="ps-err">
+        {`${word} : The term '${word}' is not recognized as the name of a cmdlet, function, script file, or operable program.`}
+        <br />
+        {"Try 'help'."}
+      </div>
+    ),
+  };
+}
+
+export function SkillsPanel() {
+  const [entries, setEntries] = useState<Out[]>(() => [{ cmd: "Get-Skills -Group Infra", out: groupOut(0) }]);
+  const [input, setInput] = useState("");
+  const [hist, setHist] = useState<string[]>([]);
+  const [hi, setHi] = useState(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) inputRef.current?.focus({ preventScroll: true });
+  }, []);
+
+  const exec = (c: string) => {
+    const r = run(c);
+    // keep only the latest command on screen: the console never scrolls
+    setEntries(r ? [r] : []);
+    if (c.trim()) setHist((h) => [c, ...h].slice(0, 30));
+    setHi(-1);
+    setInput("");
+  };
+
+  return (
+    <div className="w-stack">
+      <p className="w-lead">Type a command, or click one below. Try <code>help</code>.</p>
+      <div className="ps-win" onClick={() => inputRef.current?.focus({ preventScroll: true })}>
+        <div className="ps-title">
+          <span className="ps-icon" aria-hidden="true">
+            &gt;_
+          </span>
+          Administrator: Windows PowerShell
+          <span className="ps-btns" aria-hidden="true">
+            <i>&#8212;</i>
+            <i>&#9744;</i>
+            <i>&#10005;</i>
+          </span>
+        </div>
+        <div className="ps-body" aria-live="polite">
+          {entries.map((e, i) => (
+            <div key={i} className="ps-entry">
+              {e.cmd && (
+                <div>
+                  <span className="ps-prompt">PS C:\Users\Dolgion&gt;</span> <span className="ps-cmd">{e.cmd}</span>
+                </div>
+              )}
+              {e.out}
+            </div>
           ))}
-        </ul>
+          <form
+            className="ps-line"
+            onSubmit={(ev) => {
+              ev.preventDefault();
+              exec(input);
+            }}
+          >
+            <label htmlFor="ps-in" className="ps-prompt">
+              PS C:\Users\Dolgion&gt;
+            </label>
+            <input
+              id="ps-in"
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowUp" && hist.length) {
+                  e.preventDefault();
+                  const n = Math.min(hi + 1, hist.length - 1);
+                  setHi(n);
+                  setInput(hist[n]);
+                } else if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  const n = hi - 1;
+                  setHi(Math.max(-1, n));
+                  setInput(n >= 0 ? hist[n] : "");
+                } else if (e.key === "Tab") {
+                  e.preventDefault();
+                  const opts = ["Get-Skills", ...SHORT.map((s) => `Get-Skills -Group ${s}`), "help", "whoami", "cls"];
+                  const hit = opts.find((o) => o.toLowerCase().startsWith(input.toLowerCase()) && o.length > input.length);
+                  if (hit) setInput(hit);
+                }
+              }}
+              spellCheck={false}
+              autoComplete="off"
+              autoCapitalize="off"
+              aria-label="PowerShell command"
+            />
+          </form>
+        </div>
+      </div>
+      <div className="ps-chips">
+        <button onClick={() => exec("Get-Skills")}>Get-Skills</button>
+        {SHORT.map((s) => (
+          <button key={s} onClick={() => exec(`Get-Skills -Group ${s}`)}>
+            -Group {s}
+          </button>
+        ))}
       </div>
     </div>
   );

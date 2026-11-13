@@ -366,3 +366,46 @@ html:has(.world[data-theme="light"]), html:has(.world[data-theme="light"]) body 
   .w-facts-row dd { font-size: 12px; }
   .w-me img { width: 48px; height: 48px; }
 }
+
+/* ---------- skills: PowerShell console ---------- */
+.w-lead code { font-family: var(--font-mono), monospace; color: var(--pink-ink); }
+.ps-win { border-radius: 10px; overflow: hidden; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 18px 40px -18px rgba(0, 0, 0, 0.6); cursor: text; user-select: text; }
+.ps-title {
+  display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 0 0 10px; background: #f3f3f3; color: #1f1f1f;
+  font: 400 12px/1 "Segoe UI", system-ui, sans-serif;
+}
+.ps-icon { width: 16px; height: 14px; border-radius: 2px; background: #012456; color: #fff; display: grid; place-items: center; font: 700 8px/1 Consolas, monospace; }
+.ps-btns { margin-left: auto; display: flex; height: 100%; }
+.ps-btns i { width: 40px; display: grid; place-items: center; font-style: normal; font-size: 12px; }
+.ps-btns i:last-child:hover { background: #c42b1c; color: #fff; }
+.ps-body {
+  background: #012456; color: #eeedf0; padding: 10px 12px 12px; min-height: 250px;
+  font: 400 12.5px/1.45 Consolas, "Cascadia Mono", var(--font-mono), monospace; white-space: pre-wrap; word-break: break-word;
+}
+.ps-entry { margin-bottom: 8px; display: grid; gap: 1px; }
+.ps-prompt { color: #eeedf0; }
+.ps-cmd { color: #f9f1a5; }
+.ps-dim { color: #a8b3c4; }
+.ps-err { color: #ff6b6b; }
+.ps-head { color: #6ee7b7; }
+.ps-rule { color: #6ee7b7; opacity: 0.8; }
+.ps-kv span { display: inline-block; width: 8ch; color: #6ee7b7; }
+.ps-items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1px 14px; }
+.ps-table { display: grid; grid-template-columns: 3ch 7ch 1fr; gap: 0 10px; margin: 4px 0; }
+.ps-table-2 { grid-template-columns: auto 1fr; }
+.ps-line { display: flex; align-items: baseline; gap: 8px; margin: 0; }
+.ps-line input {
+  flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; padding: 0; margin: 0;
+  color: #f9f1a5; font: inherit; caret-color: #eeedf0;
+}
+.ps-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.ps-chips button {
+  padding: 6px 10px !important; border-radius: 8px; font: 500 12px/1 var(--font-mono), monospace !important;
+  color: var(--ink-2) !important; box-shadow: inset 0 0 0 1px var(--line); transition: background 0.2s, color 0.2s;
+}
+.ps-chips button:hover { color: var(--pink-ink) !important; background: rgba(94, 234, 212, 0.08) !important; }
+@media (max-width: 760px) {
+  .ps-body { font-size: 11.5px; min-height: 200px; }
+  .ps-items { grid-template-columns: 1fr; }
+  .ps-btns i { width: 30px; }
+}

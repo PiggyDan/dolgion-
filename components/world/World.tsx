@@ -76,7 +76,10 @@ export default function World({ shots }: { shots: Shots }) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      const typing = !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA");
       if (e.key === "Escape") open(null);
+      if (typing) return;
       const n = Number(e.key);
       if (n >= 1 && n <= 5) open(ORDER[n - 1]);
     };
@@ -158,8 +161,8 @@ export default function World({ shots }: { shots: Shots }) {
       const portrait = cw < 760 || cw < ch * 1.05;
       if (portrait) return { portrait, baseZ: Math.max(cw / 1250, (ch / 1000) * 0.55), cx: 800, cy: 0 };
       const introW = cw >= 1100 ? (introRef.current?.offsetWidth ?? 0) + 40 : 0;
-      const baseZ = Math.min((cw - introW - 30) / 1140, (ch - 170) / 700);
-      const cx = introW ? 250 + (cw / 2 - introW) / baseZ : 800;
+      const baseZ = Math.min((cw - introW - 30) / 1200, (ch - 170) / 700);
+      const cx = introW ? 190 + (cw / 2 - introW) / baseZ : 800;
       return { portrait, baseZ, cx, cy: 555 };
     };
 

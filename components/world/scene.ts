@@ -8,8 +8,8 @@ export const EXTENT = { x: -300, y: -100, w: 2200, h: 1250 };
 /* ---------- palettes: dark (NOC at night) and light (blueprint) ---------- */
 export type Theme = "dark" | "light";
 const PALETTES = {
-  dark: { bg: "#0a111e", teal: "94,234,212", blue: "122,162,255", dim: "140,170,210", body: "#0e1a2c", port: "#06101c", unit: "#13233a", packet: "#ffffff", vignette: "5,9,16", dimA: 1 },
-  light: { bg: "#eef3f8", teal: "13,148,136", blue: "59,92,200", dim: "60,84,120", body: "#ffffff", port: "#dfe7f0", unit: "#eaf0f6", packet: "#0f766e", vignette: "200,212,228", dimA: 1.5 },
+  dark: { bg: "#0a111e", teal: "94,234,212", blue: "122,162,255", dim: "140,170,210", body: "#0e1a2c", port: "#06101c", unit: "#13233a", packet: "#ffffff", vignette: "5,9,16", dimA: 1, top: "#1a2d48", side: "#08111f", shadow: "rgba(0,0,0,0.55)" },
+  light: { bg: "#eef3f8", teal: "13,148,136", blue: "59,92,200", dim: "60,84,120", body: "#ffffff", port: "#dfe7f0", unit: "#eaf0f6", packet: "#0f766e", vignette: "200,212,228", dimA: 1.5, top: "#f7fafd", side: "#c9d6e4", shadow: "rgba(30,50,80,0.22)" },
 };
 export let BG = PALETTES.dark.bg;
 let TEAL = PALETTES.dark.teal;
@@ -123,6 +123,40 @@ function panel(ctx: C, x: number, y: number, w: number, h: number, r: number, rg
   ctx.fill();
   glow(ctx, rgb, a, 12, 1.4, () => rr(ctx, x, y, w, h, r));
 }
+/** An extruded box: front face plus a lit top and a shaded right side, with a soft floor shadow. */
+const DXR = 0.62;
+const DYR = -0.42;
+function box3d(ctx: C, x: number, y: number, w: number, h: number, d: number, rgb = TEAL, a = 0.75, r = 4) {
+  const dx = d * DXR;
+  const dy = d * DYR;
+  ctx.save();
+  ctx.shadowColor = P.shadow;
+  ctx.shadowBlur = 22;
+  ctx.shadowOffsetX = 10;
+  ctx.shadowOffsetY = 12;
+  ctx.fillStyle = P.shadow;
+  path(ctx, [[x + 4, y + h], [x + w, y + h], [x + w + dx, y + h + dy], [x + dx + 4, y + h + dy]], true);
+  ctx.fill();
+  ctx.restore();
+  const top: Pt[] = [[x + r, y], [x + w, y], [x + w + dx, y + dy], [x + dx + r, y + dy]];
+  const side: Pt[] = [[x + w, y + r], [x + w + dx, y + dy + r], [x + w + dx, y + h + dy - r], [x + w, y + h - r]];
+  const gt = ctx.createLinearGradient(x, y + dy, x, y);
+  gt.addColorStop(0, P.top);
+  gt.addColorStop(1, P.body);
+  ctx.fillStyle = gt;
+  path(ctx, top, true);
+  ctx.fill();
+  const gs = ctx.createLinearGradient(x + w, 0, x + w + dx, 0);
+  gs.addColorStop(0, P.side);
+  gs.addColorStop(1, P.body);
+  ctx.fillStyle = gs;
+  path(ctx, side, true);
+  ctx.fill();
+  glow(ctx, rgb, a * 0.55, 6, 1, () => path(ctx, top, true));
+  glow(ctx, rgb, a * 0.4, 4, 1, () => path(ctx, side, true));
+  panel(ctx, x, y, w, h, r, rgb, a);
+}
+
 function label(ctx: C, text: string, x: number, y: number, a = 0.55, size = 9, align: CanvasTextAlign = "center") {
   ctx.fillStyle = `rgba(${DIM},${Math.min(1, a * P.dimA)})`;
   ctx.font = `600 ${size}px ui-monospace, Menlo, Consolas, monospace`;
@@ -189,7 +223,7 @@ export function paintStatic(ctx: C) {
 
 function coreSwitch(ctx: C) {
   const [cx, cy] = CORE;
-  panel(ctx, cx - 70, cy - 20, 140, 40, 6);
+  box3d(ctx, cx - 70, cy - 20, 140, 40, 46, TEAL, 0.8, 5);
   for (let i = 0; i < 12; i++) {
     const x = cx - 58 + i * 10;
     ctx.fillStyle = P.port;
@@ -204,7 +238,17 @@ function racks(ctx: C) {
   for (let i = 0; i < 3; i++) {
     const x = 690 + i * 76;
     const y = 300;
-    panel(ctx, x, y, 66, 186, 5, TEAL, i === 1 ? 0.85 : 0.6);
+    box3d(ctx, x, y, 66, 186, 40, TEAL, i === 1 ? 0.85 : 0.65, 5);
+    for (let v = 0; v < 12; v++) {
+      ctx.strokeStyle = `rgba(${DIM},0.22)`;
+      ctx.lineWidth = 1;
+      path(ctx, [[x + 70, y + 20 + v * 14], [x + 88, y + 8 + v * 14]]);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = `rgba(${DIM},0.35)`;
+    ctx.beginPath();
+    ctx.ellipse(x + 45, y - 8, 10, 4.5, 0, 0, Math.PI * 2);
+    ctx.stroke();
     for (let u = 0; u < 9; u++) {
       const yy = y + 12 + u * 19;
       ctx.fillStyle = P.unit;
@@ -225,34 +269,61 @@ function racks(ctx: C) {
 function workstation(ctx: C) {
   const cx = 370;
   const cy = 330;
-  panel(ctx, cx - 92, cy - 70, 184, 116, 8, TEAL, 0.8); // screen
+  // tower PC
+  box3d(ctx, cx - 160, cy - 34, 44, 100, 44, TEAL, 0.7, 4);
+  for (let k = 0; k < 3; k++) {
+    ctx.strokeStyle = `rgba(${DIM},0.35)`;
+    ctx.strokeRect(cx - 153, cy - 26 + k * 9, 30, 5);
+  }
+  ctx.strokeStyle = `rgba(${TEAL},0.8)`;
+  ctx.beginPath();
+  ctx.arc(cx - 138, cy + 46, 5, 0, Math.PI * 2);
+  ctx.stroke();
+  for (let k = 0; k < 6; k++) {
+    ctx.fillStyle = `rgba(${DIM},0.2)`;
+    ctx.fillRect(cx - 152, cy + 6 + k * 4, 28, 1.5);
+  }
+  // stand and foot
+  box3d(ctx, cx - 42, cy + 64, 84, 7, 40, TEAL, 0.6, 2);
+  box3d(ctx, cx - 9, cy + 44, 18, 22, 10, TEAL, 0.6, 2);
+  // monitor
+  box3d(ctx, cx - 92, cy - 70, 184, 116, 14, TEAL, 0.85, 8);
   ctx.fillStyle = "#081320";
   ctx.fillRect(cx - 84, cy - 62, 168, 100);
-  // base
-  ctx.fillStyle = P.body;
-  path(ctx, [[cx - 110, cy + 56], [cx + 110, cy + 56], [cx + 96, cy + 46], [cx - 96, cy + 46]], true);
-  ctx.fill();
-  glow(ctx, TEAL, 0.6, 8, 1.3, () => path(ctx, [[cx - 110, cy + 56], [cx + 110, cy + 56], [cx + 96, cy + 46], [cx - 96, cy + 46]], true));
-  label(ctx, "WS-DOLGION", cx, cy + 74, 0.6);
+  label(ctx, "WS-DOLGION", cx + 40, cy + 92, 0.6);
 }
 
+export const PS_BLUE = "#012456";
 function terminal(ctx: C) {
   const cx = 395;
   const cy = 715;
-  panel(ctx, cx - 135, cy - 72, 270, 150, 8, TEAL, 0.8);
-  ctx.fillStyle = P.unit;
-  ctx.fillRect(cx - 135, cy - 72, 270, 18);
-  for (const [i, c] of ["248,113,113", "251,191,36", "74,222,128"].entries()) {
-    ctx.fillStyle = `rgba(${c},0.85)`;
-    ctx.beginPath();
-    ctx.arc(cx - 122 + i * 11, cy - 63, 3.2, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  label(ctx, "ops@noc: ~", cx, cy - 59, 0.6, 8);
-  // stand
-  ctx.fillStyle = P.body;
-  ctx.fillRect(cx - 10, cy + 78, 20, 18);
-  glow(ctx, TEAL, 0.5, 6, 1.2, () => path(ctx, [[cx - 40, cy + 96], [cx + 40, cy + 96]]));
+  box3d(ctx, cx - 42, cy + 96, 84, 7, 40, TEAL, 0.6, 2);
+  box3d(ctx, cx - 9, cy + 78, 18, 20, 10, TEAL, 0.6, 2);
+  box3d(ctx, cx - 135, cy - 72, 270, 150, 14, TEAL, 0.85, 8);
+  // the PowerShell window
+  const wx = cx - 128;
+  const wy = cy - 65;
+  const ww = 256;
+  ctx.fillStyle = PS_BLUE;
+  ctx.fillRect(wx, wy, ww, 136);
+  ctx.fillStyle = "#f3f3f3";
+  ctx.fillRect(wx, wy, ww, 15);
+  ctx.fillStyle = PS_BLUE;
+  ctx.fillRect(wx + 5, wy + 3.5, 9, 8);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "700 6px Consolas, monospace";
+  ctx.textAlign = "left";
+  ctx.fillText(">_", wx + 5.8, wy + 9.8);
+  ctx.fillStyle = "#1f1f1f";
+  ctx.font = "500 7.5px 'Segoe UI', system-ui, sans-serif";
+  ctx.fillText("Administrator: Windows PowerShell", wx + 19, wy + 10.5);
+  ctx.textAlign = "center";
+  ctx.font = "400 8px 'Segoe UI', system-ui, sans-serif";
+  ctx.fillText("\u2014", wx + ww - 44, wy + 10.5);
+  ctx.strokeStyle = "#1f1f1f";
+  ctx.lineWidth = 0.8;
+  ctx.strokeRect(wx + ww - 29, wy + 4.5, 6, 6);
+  ctx.fillText("\u2715", wx + ww - 10, wy + 10.5);
 }
 
 function internet(ctx: C) {
@@ -290,7 +361,7 @@ function hops(ctx: C) {
   for (const h of HOPS) {
     const w = h.big ? 56 : 30;
     const hh = h.big ? 28 : 18;
-    panel(ctx, h.x - w / 2, h.y - hh / 2, w, hh, 4, h.big ? TEAL : BLUE, 0.85);
+    box3d(ctx, h.x - w / 2, h.y - hh / 2, w, hh, h.big ? 26 : 16, h.big ? TEAL : BLUE, 0.85, 3);
     // antennas
     ctx.strokeStyle = `rgba(${h.big ? TEAL : BLUE},0.7)`;
     ctx.lineWidth = 1.2;
@@ -306,17 +377,17 @@ function hops(ctx: C) {
 
 function smallDevices(ctx: C) {
   // printer
-  panel(ctx, 652, 835, 56, 30, 4, DIM, 0.45);
+  box3d(ctx, 652, 835, 56, 30, 30, DIM, 0.45);
   ctx.fillStyle = `rgb(${DIM})`;
   ctx.globalAlpha = 0.25;
   ctx.fillRect(664, 828, 32, 8);
   ctx.globalAlpha = 1;
   label(ctx, "PRN-01", 680, 882, 0.45, 8);
   // NVR
-  panel(ctx, 768, 860, 64, 22, 4, DIM, 0.45);
+  box3d(ctx, 768, 860, 64, 22, 30, DIM, 0.45);
   label(ctx, "NVR · CCTV", 800, 898, 0.45, 8);
   // IP phone
-  panel(ctx, 900, 835, 40, 30, 4, DIM, 0.45);
+  box3d(ctx, 900, 835, 40, 30, 22, DIM, 0.45);
   ctx.strokeStyle = `rgba(${DIM},0.5)`;
   ctx.strokeRect(906, 841, 16, 10);
   label(ctx, "VOIP", 920, 882, 0.45, 8);
@@ -370,17 +441,15 @@ export function step(L: Live, dt: number) {
   }
 }
 
-const CMDS = [
-  "$ esxcli storage core device list",
-  "$ ssh admin@erp-test",
-  "$ docker compose up -d",
-  "$ psql -c 'select version();'",
-  "$ git push origin main",
-  "$ nmap -sn 10.0.0.0/24",
-  "$ systemctl status nginx",
-  "$ pytest -q  # 141 passed",
-  "$ wrangler deploy",
-  "$ Get-Service | ? Status -eq Stopped",
+const CMDS: [string, string][] = [
+  ["Get-VM | ? State -eq Running", "ESXI-01  ERP-TEST  DC-01"],
+  ["Test-NetConnection erp-test -Port 443", "TcpTestSucceeded : True"],
+  ["docker compose up -d", "Container infrascope-api  Started"],
+  ["ssh admin@ubuntu-erp", "Welcome to Ubuntu 24.04 LTS"],
+  ["Get-Service | ? Status -eq Stopped", "Spooler  Stopped"],
+  ["git push origin main", "main -> main"],
+  ["pytest -q", "141 passed"],
+  ["wrangler deploy", "Deployed itcore-api"],
 ];
 
 export function drawLive(ctx: C, L: Live) {
@@ -448,25 +517,60 @@ export function drawLive(ctx: C, L: Live) {
   if (Math.floor(t * 2) % 2) ctx.fillRect(296, 352, 6, 9);
   ctx.restore();
 
-  // terminal: commands typing
+  // terminal: PowerShell typing commands
   ctx.save();
   ctx.beginPath();
-  ctx.rect(262, 650, 266, 138);
+  ctx.rect(267, 665, 256, 121);
   ctx.clip();
-  ctx.font = "600 10px ui-monospace, Menlo, Consolas, monospace";
+  ctx.font = "500 9.5px Consolas, 'Cascadia Mono', ui-monospace, monospace";
   ctx.textAlign = "left";
-  const per = 1.6;
+  const per = 2.4;
   const cur = Math.floor(t / per);
-  for (let k = 0; k < 6; k++) {
-    const idx = cur - (5 - k);
+  const rows: { prompt: boolean; text: string; typing?: boolean }[] = [];
+  for (let k = 3; k >= 0; k--) {
+    const idx = cur - k;
     if (idx < 0) continue;
-    const line = CMDS[idx % CMDS.length];
-    const shown = k === 5 ? line.slice(0, Math.floor(((t % per) / per) * 1.6 * line.length)) : line;
-    ctx.fillStyle = k === 5 ? `rgba(${TEAL},1)` : `rgba(${DIM},${0.35 + k * 0.1})`;
-    ctx.fillText(shown, 272, 668 + k * 18);
-    if (k === 5 && Math.floor(t * 3) % 2) ctx.fillRect(272 + ctx.measureText(shown).width + 2, 660 + k * 18, 6, 10);
+    const [cmd, outp] = CMDS[idx % CMDS.length];
+    const f = (t % per) / per;
+    if (k === 0) {
+      rows.push({ prompt: true, text: cmd.slice(0, Math.floor(Math.min(1, f * 1.8) * cmd.length)), typing: f < 0.7 });
+      if (f >= 0.7) rows.push({ prompt: false, text: outp });
+    } else {
+      rows.push({ prompt: true, text: cmd });
+      rows.push({ prompt: false, text: outp });
+    }
   }
+  rows.slice(-8).forEach((r, i) => {
+    const y = 678 + i * 14;
+    let x = 271;
+    if (r.prompt) {
+      const ps = "PS C:\\> ";
+      ctx.fillStyle = "#eeedf0";
+      ctx.fillText(ps, x, y);
+      x += ctx.measureText(ps).width;
+      const [verb, ...rest] = r.text.split(" ");
+      ctx.fillStyle = "#f9f1a5";
+      ctx.fillText(verb, x, y);
+      x += ctx.measureText(verb + " ").width;
+      ctx.fillStyle = "#a8b3c4";
+      ctx.fillText(rest.join(" "), x, y);
+      x += ctx.measureText(rest.join(" ")).width;
+      if (r.typing && Math.floor(t * 3) % 2) {
+        ctx.fillStyle = "#eeedf0";
+        ctx.fillRect(x + 1, y - 8, 5, 10);
+      }
+    } else {
+      ctx.fillStyle = "rgba(238,237,240,0.7)";
+      ctx.fillText(r.text, x, y);
+    }
+  });
   ctx.restore();
+
+  // tower power LED
+  ctx.fillStyle = Math.sin(t * 2.5) > -0.6 ? "#4ade80" : "rgba(74,222,128,0.3)";
+  ctx.beginPath();
+  ctx.arc(232, 376, 1.8, 0, Math.PI * 2);
+  ctx.fill();
 
   // internet: mail leaving
   for (let i = 0; i < 3; i++) {
