@@ -8,6 +8,10 @@ export const profile = {
   phone: "+976 8909 0126",
   github: "https://github.com/PiggyDan",
   linkedin: "https://www.linkedin.com/in/dolgion-o/",
+  facebook: "https://www.facebook.com/share/1E1s99tmL4/?mibextid=wwXIfr",
+  whatsapp: "https://wa.me/97689090126",
+  telegram: "https://t.me/+97689090126",
+  viber: "viber://chat?number=%2B97689090126",
   site: "https://daniel70.netlify.app",
   location: "Ulaanbaatar, Mongolia",
   positioning: ["Systems Engineer", "Infrastructure & Automation", "Software Development"],
@@ -19,11 +23,11 @@ export const profile = {
 export const employer = { name: "Govikhangai Khudulmur LLC", site: "https://www.gkllc.mn", host: "gkllc.mn" };
 
 export const nav = [
-  { label: "Work", href: "/#work" },
-  { label: "Experience", href: "/#experience" },
-  { label: "Skills", href: "/#skills" },
-  { label: "About", href: "/#about" },
-  { label: "Contact", href: "/#contact" },
+  { label: "Work", href: "/?p=work" },
+  { label: "Experience", href: "/?p=experience" },
+  { label: "Skills", href: "/?p=skills" },
+  { label: "About", href: "/?p=about" },
+  { label: "Contact", href: "/?p=contact" },
 ];
 
 export const hero = {

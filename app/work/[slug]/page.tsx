@@ -63,7 +63,7 @@ export default async function CaseStudyPage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <nav aria-label="Breadcrumb" className="crumbs">
-        <Link href="/#work" className="text-link">
+        <Link href="/?p=work" className="text-link">
           <ArrowLeft size={14} aria-hidden="true" /> All work
         </Link>
       </nav>
